@@ -1,0 +1,26 @@
+spring:
+
+  application:
+    name: spring-tricount
+
+  profiles:
+    active: local
+
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/tricount
+    username: sa
+
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  logging:
+    level:
+      org.hibernate.type: trace
+      org.hibernate.stat: debug
