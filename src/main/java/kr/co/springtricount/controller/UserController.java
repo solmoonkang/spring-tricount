@@ -1,7 +1,7 @@
 package kr.co.springtricount.controller;
 
 import kr.co.springtricount.service.UserService;
-import kr.co.springtricount.service.dto.request.CreateMemberReqDTO;
+import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody @Validated CreateMemberReqDTO create) {
+    public ResponseEntity<Void> createUser(@RequestBody @Validated MemberReqDTO create) {
 
         userService.createUser(create);
 

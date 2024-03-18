@@ -3,7 +3,7 @@ package kr.co.springtricount.service;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.persistence.entity.User;
 import kr.co.springtricount.persistence.repository.UserRepository;
-import kr.co.springtricount.service.dto.request.CreateMemberReqDTO;
+import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createUser(CreateMemberReqDTO create) {
+    public void createUser(MemberReqDTO create) {
 
         checkIdentityExists(create.identity());
 
