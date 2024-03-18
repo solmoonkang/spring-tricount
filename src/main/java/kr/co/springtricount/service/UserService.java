@@ -20,11 +20,7 @@ public class UserService {
 
         checkIdentityExists(create.identity());
 
-        final User user = User.builder()
-                .identity(create.identity())
-                .password(create.password())
-                .name(create.name())
-                .build();
+        final User user = User.toMemberEntity(create);
 
         userRepository.save(user);
     }

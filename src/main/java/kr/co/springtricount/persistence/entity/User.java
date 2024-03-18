@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import kr.co.springtricount.persistence.BaseEntity;
+import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -34,5 +35,14 @@ public class User extends BaseEntity {
         this.identity = identity;
         this.password = password;
         this.name = name;
+    }
+
+    public static User toMemberEntity(MemberReqDTO create) {
+
+        return User.builder()
+                .identity(create.identity())
+                .password(create.password())
+                .name(create.name())
+                .build();
     }
 }
