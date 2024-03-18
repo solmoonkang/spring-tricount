@@ -66,3 +66,5 @@
 
 - 기능을 구현한 executable jar 파일
 - 결과물은 구글 드라이브에 업로드 후 링크를 공유합니다.
+
+<img width="965" alt="스크린샷 2024-03-19 오전 12 56 27" src="https://github.com/solmoonkang/spring-tricount/assets/109902582/7ee36d94-3232-4c4e-bc99-32eca910c871">
