@@ -6,18 +6,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import kr.co.springtricount.persistence.BaseEntity;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "tbl_users")
+@Table(name = "tbl_members")
 @AttributeOverride(
         name = "id",
-        column = @Column(name = "user_id", length = 4)
+        column = @Column(name = "member_id", length = 4)
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
+public class Member extends BaseEntity {
 
     @Column(name = "identity", length = 50, nullable = false, unique = true)
     private String identity;
@@ -29,20 +30,25 @@ public class User extends BaseEntity {
     private String name;
 
     @Builder
-    public User(String identity,
-                String password,
-                String name) {
+    public Member(String identity,
+                  String password,
+                  String name) {
         this.identity = identity;
         this.password = password;
         this.name = name;
     }
 
-    public static User toMemberEntity(MemberReqDTO create) {
+    public static Member toMemberEntity(MemberReqDTO create) {
 
-        return User.builder()
+        return Member.builder()
                 .identity(create.identity())
                 .password(create.password())
                 .name(create.name())
                 .build();
+    }
+
+    public MemberResDTO toReadDto() {
+
+        return new MemberResDTO(identity, name);
     }
 }
