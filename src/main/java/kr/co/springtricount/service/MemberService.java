@@ -1,9 +1,12 @@
 package kr.co.springtricount.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.infra.exception.NotFoundException;
+import kr.co.springtricount.infra.exception.UnauthorizedException;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
+import kr.co.springtricount.service.dto.request.LoginDTO;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,21 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public void login(HttpServletRequest request, LoginDTO loginDTO) {
+
+        final Member findMember = memberRepository.findMemberByIdentity(loginDTO.identity())
+                .orElseThrow(() -> new NotFoundException("요청하신 회원은 없는 회원입니다."));
+
+        checkPasswordMatch(findMember.getPassword(), loginDTO.password());
+
+        request.getSession().setAttribute("member", findMember.getIdentity());
+    }
+
+    public void logout(HttpServletRequest request) {
+
+        request.getSession().invalidate();
+    }
+
     public List<MemberResDTO> findAllMember() {
 
         final List<Member> findMember = memberRepository.findAll();
@@ -47,6 +65,7 @@ public class MemberService {
         return findMember.toReadDto();
     }
 
+    @Transactional
     public void deleteMember(String identity) {
 
         final Member deleteMember = memberRepository.findMemberByIdentity(identity)
@@ -61,4 +80,9 @@ public class MemberService {
         }
     }
 
+    private void checkPasswordMatch(String storedPassword, String inputPassword) {
+        if (!storedPassword.equals(inputPassword)) {
+            throw new UnauthorizedException("일치하지 않는 회원입니다.");
+        }
+    }
 }
