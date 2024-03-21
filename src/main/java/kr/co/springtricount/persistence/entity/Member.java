@@ -9,9 +9,11 @@ import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @Table(name = "tbl_members")
 @AttributeOverride(
         name = "id",
