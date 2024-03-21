@@ -10,7 +10,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (request.getSession().getAttribute("member") == null) {
+        if (request.getSession().getAttribute(SessionConstant.LOGIN_MEMBER) == null) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
             return false;
         }
