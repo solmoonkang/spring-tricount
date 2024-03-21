@@ -39,4 +39,12 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(memberService.findMemberByIdentity(identity));
     }
+
+    @DeleteMapping("/{identity}")
+    public ResponseEntity<Void> deleteMember(@PathVariable String identity) {
+
+        memberService.deleteMember(identity);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
