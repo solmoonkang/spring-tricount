@@ -1,6 +1,8 @@
 package kr.co.springtricount.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.co.springtricount.service.MemberService;
+import kr.co.springtricount.service.dto.request.LoginDTO;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,23 @@ public class MemberController {
         memberService.createMember(create);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(HttpServletRequest request,
+                                      @RequestBody @Validated LoginDTO loginDTO) {
+
+        memberService.login(request, loginDTO);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+
+        memberService.logout(request);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping
