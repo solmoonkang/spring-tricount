@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,6 +27,15 @@ public class MemberService {
         final Member member = Member.toMemberEntity(create);
 
         memberRepository.save(member);
+    }
+
+    public List<MemberResDTO> findAllMember() {
+
+        final List<Member> findMember = memberRepository.findAll();
+
+        return findMember.stream()
+                .map(Member::toReadDto)
+                .collect(Collectors.toList());
     }
 
     public MemberResDTO findMemberByIdentity(String identity) {
