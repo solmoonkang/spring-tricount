@@ -15,6 +15,7 @@ public enum ResponseStatus {
 
 
     FAIL_BAD_REQUEST(HttpStatus.BAD_REQUEST, "❎ [ERROR] 잘못된 요청입니다. 요청 형식을 확인해주세요."),
+    FAIL_DUPLICATED(HttpStatus.CONFLICT, "❎ [ERROR] 중복된 요청입니다. 다른 요청 형식을 입력해주세요."),
     FAIL_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "❎ [ERROR] 인증되지 않은 사용자 입니다."),
     FAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "❎ [ERROR] 요청한 리소스를 찾을 수 없습니다."),
     FAIL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "❎ [ERROR] 서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
