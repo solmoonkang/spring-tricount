@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
@@ -22,6 +24,13 @@ public class MemberController {
         memberService.createMember(create);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MemberResDTO>> findAllMember() {
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(memberService.findAllMember());
     }
 
     @GetMapping("/{identity}")
