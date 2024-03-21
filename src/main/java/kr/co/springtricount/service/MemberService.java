@@ -1,6 +1,7 @@
 package kr.co.springtricount.service;
 
 import kr.co.springtricount.infra.exception.DuplicatedException;
+import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
@@ -41,9 +42,17 @@ public class MemberService {
     public MemberResDTO findMemberByIdentity(String identity) {
 
         final Member findMember = memberRepository.findMemberByIdentity(identity)
-                .orElseThrow();
+                .orElseThrow(() -> new NotFoundException("요청하신 회원은 없는 회원입니다."));
 
         return findMember.toReadDto();
+    }
+
+    public void deleteMember(String identity) {
+
+        final Member deleteMember = memberRepository.findMemberByIdentity(identity)
+                .orElseThrow(() -> new NotFoundException("요청하신 회원은 없는 회원입니다."));
+
+        memberRepository.delete(deleteMember);
     }
 
     private void checkIdentityExists(String identity) {
