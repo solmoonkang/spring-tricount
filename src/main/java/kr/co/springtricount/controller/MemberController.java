@@ -1,6 +1,6 @@
 package kr.co.springtricount.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.MemberService;
@@ -47,10 +47,10 @@ public class MemberController {
     }
 
     @DeleteMapping
-    public ResponseFormat<Void> deleteMember(HttpServletRequest request,
+    public ResponseFormat<Void> deleteMember(HttpSession httpSession,
                                              @RequestBody @Validated LoginDTO loginDTO) {
 
-        memberService.deleteMember(request, loginDTO);
+        memberService.deleteMember(httpSession, loginDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
