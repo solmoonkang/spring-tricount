@@ -3,6 +3,7 @@ package kr.co.springtricount.service;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.exception.AuthenticationException;
+import kr.co.springtricount.infra.exception.LoginException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
@@ -19,6 +20,8 @@ public class AuthService {
 
     public void login(HttpServletRequest request, LoginDTO loginDTO) {
 
+        checkAlreadyLogin(request);
+
         final Member findMember = memberRepository.findMemberByIdentity(loginDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
@@ -29,6 +32,8 @@ public class AuthService {
 
     public void logout(HttpServletRequest request) {
 
+        checkNotLogin(request);
+
         request.getSession().invalidate();
     }
 
@@ -36,5 +41,21 @@ public class AuthService {
         if (!storedPassword.equals(inputPassword)) {
             throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
+    }
+
+    private void checkAlreadyLogin(HttpServletRequest request) {
+        if (isLoggedIn(request)) {
+            throw new LoginException(ResponseStatus.FAIL_UNNECESSARY_LOGIN);
+        }
+    }
+
+    private void checkNotLogin(HttpServletRequest request) {
+        if (!isLoggedIn(request)) {
+            throw new LoginException(ResponseStatus.FAIL_UNNECESSARY_LOGOUT);
+        }
+    }
+
+    private boolean isLoggedIn(HttpServletRequest request) {
+        return request.getSession().getAttribute(SessionConstant.LOGIN_MEMBER) != null;
     }
 }
