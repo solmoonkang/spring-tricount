@@ -46,7 +46,7 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    public MemberResDTO toReadDto() {
+    public MemberResDTO toMemberReadDto() {
 
         return new MemberResDTO(identity, name);
     }
