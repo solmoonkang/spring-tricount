@@ -1,9 +1,6 @@
 package kr.co.springtricount.infra.handler;
 
-import kr.co.springtricount.infra.exception.AuthenticationException;
-import kr.co.springtricount.infra.exception.BusinessLogicException;
-import kr.co.springtricount.infra.exception.DuplicatedException;
-import kr.co.springtricount.infra.exception.NotFoundException;
+import kr.co.springtricount.infra.exception.*;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(InvalidRequestException.class)
+    protected ResponseEntity<ResponseFormat<Void>> handleInvalidRequestException(InvalidRequestException e) {
+        log.warn("INVALID REQUEST: ", e);
+
+        ResponseFormat<Void> responseFormat =
+                ResponseFormat.failureMessage(ResponseStatus.FAIL_BAD_REQUEST, e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseFormat);
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<ResponseFormat<Void>> handleAuthenticationException(AuthenticationException e) {
