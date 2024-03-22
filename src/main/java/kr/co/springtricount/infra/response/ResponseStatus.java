@@ -21,6 +21,10 @@ public enum ResponseStatus {
     FAIL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "❎ [ERROR] 서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
 
 
+    FAIL_UNNECESSARY_LOGIN(HttpStatus.BAD_REQUEST, "❎ [ERROR] 이미 로그인된 상태입니다. 추가 로그인은 필요하지 않습니다."),
+    FAIL_UNNECESSARY_LOGOUT(HttpStatus.BAD_REQUEST, "❎ [ERROR] 로그아웃 상태입니다. 로그아웃을 시도할 필요가 없습니다."),
+
+
     FAIL_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "❎ [ERROR] 요청한 회원을 찾을 수 없습니다."),
     FAIL_IDENTITY_DUPLICATION(HttpStatus.CONFLICT, "❎ [ERROR] 해당 아이디는 이미 사용 중입니다.");
 
