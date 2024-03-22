@@ -1,8 +1,7 @@
 package kr.co.springtricount.service;
 
-import jakarta.servlet.http.HttpSession;
-import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.exception.AuthenticationException;
+import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.entity.MemberSettlement;
@@ -47,16 +46,30 @@ public class SettlementService {
         memberSettlementRepository.saveAll(memberSettlements);
     }
 
-    public List<MemberSettlementResDTO> findAllSettlementsByMember(HttpSession httpSession) {
-
-        final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+    // TODO: 해당 정산에 참여한 회원만 정산 내역을 확인할 수 있는지 테스트
+    // TODO: List<MemberSettlement>가 비었는지 검증하는 로직말고 또 다른 검증이 필요한지 고민
+    public List<MemberSettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
 
-        checkMemberParticipation(memberSettlements, memberLoginIdentity);
+        checkMemberExistence(memberSettlements);
 
         return convertToMemberSettlementResDTOs(memberSettlements);
+    }
+
+    // TODO: 해당 정산에 참여한 회원이 해당 정산 내역을 제거할 수 있는지 테스트
+    @Transactional
+    public void deleteSettlementById(Long settlementId, String memberLoginIdentity) {
+
+        final List<MemberSettlement> memberSettlements =
+                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+
+        checkMemberParticipation(settlementId, memberLoginIdentity);
+
+        settlementRepository.deleteById(settlementId);
+
+        memberSettlementRepository.deleteAll(memberSettlements);
     }
 
     private List<MemberSettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
@@ -80,18 +93,17 @@ public class SettlementService {
         return new MemberSettlementResDTO(settlement.getName(), memberNames);
     }
 
-    private void checkMemberParticipation(List<MemberSettlement> memberSettlements,
-                                          String memberLoginIdentity) {
+    private void checkMemberExistence(List<MemberSettlement> memberSettlements) {
 
-        if (!checkIfMemberIsParticipating(memberSettlements, memberLoginIdentity)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+        if (memberSettlements.isEmpty()) {
+            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
     }
 
-    private boolean checkIfMemberIsParticipating(List<MemberSettlement> memberSettlements,
-                                                 String memberLoginIdentity) {
+    private void checkMemberParticipation(Long settlementId, String memberLoginIdentity) {
 
-        return memberSettlements.stream()
-                .anyMatch(memberSettlement -> memberSettlement.getMember().getIdentity().equals(memberLoginIdentity));
+        if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberLoginIdentity)) {
+            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+        }
     }
 }
