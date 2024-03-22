@@ -1,6 +1,7 @@
 package kr.co.springtricount.controller;
 
 import jakarta.servlet.http.HttpSession;
+import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.SettlementService;
@@ -30,9 +31,22 @@ public class SettlementController {
     @GetMapping
     public ResponseFormat<List<MemberSettlementResDTO>> findAllSettlementsByMember(HttpSession httpSession) {
 
+        final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                settlementService.findAllSettlementsByMember(httpSession)
+                settlementService.findAllSettlementsByMember(memberLoginIdentity)
         );
+    }
+
+    @DeleteMapping("/{settlement_id}")
+    public ResponseFormat<Void> deleteSettlementById(@PathVariable(name = "settlement_id") Long settlementId,
+                                                     HttpSession httpSession) {
+
+        final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+
+        settlementService.deleteSettlementById(settlementId, memberLoginIdentity);
+
+        return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
 }
