@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface MemberSettlementRepository extends JpaRepository<MemberSettlement, Long> {
 
-    List<MemberSettlement> findAllBySettlementId(Long id);
+    List<MemberSettlement> findAllByMemberIdentity(String memberIdentity);
 }
