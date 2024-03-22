@@ -2,10 +2,13 @@ package kr.co.springtricount.persistence.entity;
 
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.BaseEntity;
+import kr.co.springtricount.service.dto.response.MemberSettlementDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -39,5 +42,11 @@ public class MemberSettlement extends BaseEntity {
                 .member(member)
                 .settlement(settlement)
                 .build();
+    }
+
+    public static MemberSettlementDTO toMemberSettlementReadDto(Settlement settlement,
+                                                                List<String> memberNames) {
+
+        return new MemberSettlementDTO(settlement.getName(), memberNames);
     }
 }
