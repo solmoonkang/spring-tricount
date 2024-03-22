@@ -1,7 +1,5 @@
 package kr.co.springtricount.service;
 
-import jakarta.servlet.http.HttpSession;
-import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.exception.AuthenticationException;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.infra.exception.NotFoundException;
@@ -53,9 +51,9 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(HttpSession httpSession, LoginDTO loginDTO) {
+    public void deleteMember(String loggedInUserIdentity, LoginDTO loginDTO) {
 
-        checkMemberLoginIdentityMatches(httpSession, loginDTO.identity());
+        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginDTO.identity());
 
         final Member deleteMember = memberRepository.findMemberByIdentity(loginDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
@@ -72,9 +70,7 @@ public class MemberService {
         }
     }
 
-    private void checkMemberLoginIdentityMatches(HttpSession httpSession, String identity) {
-
-        String loggedInUserIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+    private void checkMemberLoginIdentityMatches(String loggedInUserIdentity, String identity) {
 
         if (!identity.equals(loggedInUserIdentity)) {
             throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
