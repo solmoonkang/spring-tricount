@@ -8,4 +8,6 @@ import java.util.List;
 public interface MemberSettlementRepository extends JpaRepository<MemberSettlement, Long> {
 
     List<MemberSettlement> findAllByMemberIdentity(String memberIdentity);
+
+    boolean existsBySettlementIdAndMemberIdentity(Long settlementId, String memberIdentity);
 }
