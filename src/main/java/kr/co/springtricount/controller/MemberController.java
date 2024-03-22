@@ -1,8 +1,10 @@
 package kr.co.springtricount.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.MemberService;
+import kr.co.springtricount.service.dto.request.LoginDTO;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +46,11 @@ public class MemberController {
         );
     }
 
-    @DeleteMapping("/{identity}")
-    public ResponseFormat<Void> deleteMember(@PathVariable String identity) {
+    @DeleteMapping
+    public ResponseFormat<Void> deleteMember(HttpServletRequest request,
+                                             @RequestBody @Validated LoginDTO loginDTO) {
 
-        memberService.deleteMember(identity);
+        memberService.deleteMember(request, loginDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
