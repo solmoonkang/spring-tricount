@@ -5,10 +5,12 @@ import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.SettlementService;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
-import kr.co.springtricount.service.dto.response.MemberSettlementDTO;
+import kr.co.springtricount.service.dto.response.MemberSettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,13 +27,12 @@ public class SettlementController {
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
 
-    @GetMapping("/{settlement_id}")
-    public ResponseFormat<MemberSettlementDTO> findSettlementById(
-            @PathVariable(name = "settlement_id") Long settlementId, HttpSession httpSession) {
+    @GetMapping
+    public ResponseFormat<List<MemberSettlementResDTO>> findAllSettlementsByMember(HttpSession httpSession) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                settlementService.findSettlementById(settlementId, httpSession)
+                settlementService.findAllSettlementsByMember(httpSession)
         );
     }
 }
