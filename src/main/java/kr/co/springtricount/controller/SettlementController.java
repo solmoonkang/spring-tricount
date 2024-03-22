@@ -1,15 +1,14 @@
 package kr.co.springtricount.controller;
 
+import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.SettlementService;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
+import kr.co.springtricount.service.dto.response.MemberSettlementDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,5 +23,15 @@ public class SettlementController {
         settlementService.createSettlement(create);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
+    }
+
+    @GetMapping("/{settlement_id}")
+    public ResponseFormat<MemberSettlementDTO> findSettlementById(
+            @PathVariable(name = "settlement_id") Long settlementId, HttpSession httpSession) {
+
+        return ResponseFormat.successMessageWithData(
+                ResponseStatus.SUCCESS_EXECUTE,
+                settlementService.findSettlementById(settlementId, httpSession)
+        );
     }
 }
