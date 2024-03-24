@@ -1,7 +1,5 @@
 package kr.co.springtricount.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.exception.AuthenticationException;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.infra.exception.NotFoundException;
@@ -40,7 +38,7 @@ public class MemberService {
         final List<Member> findMember = memberRepository.findAll();
 
         return findMember.stream()
-                .map(Member::toReadDto)
+                .map(Member::toMemberReadDto)
                 .collect(Collectors.toList());
     }
 
@@ -49,13 +47,13 @@ public class MemberService {
         final Member findMember = memberRepository.findMemberByIdentity(identity)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        return findMember.toReadDto();
+        return findMember.toMemberReadDto();
     }
 
     @Transactional
-    public void deleteMember(HttpServletRequest request, LoginDTO loginDTO) {
+    public void deleteMember(String loggedInUserIdentity, LoginDTO loginDTO) {
 
-        checkMemberLoginIdentityMatches(request, loginDTO.identity());
+        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginDTO.identity());
 
         final Member deleteMember = memberRepository.findMemberByIdentity(loginDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
@@ -66,13 +64,13 @@ public class MemberService {
     }
 
     private void checkIdentityExists(String identity) {
+
         if (memberRepository.existsMemberByIdentity(identity)) {
             throw new DuplicatedException(ResponseStatus.FAIL_IDENTITY_DUPLICATION);
         }
     }
 
-    private void checkMemberLoginIdentityMatches(HttpServletRequest request, String identity) {
-        String loggedInUserIdentity = (String) request.getSession().getAttribute(SessionConstant.LOGIN_MEMBER);
+    private void checkMemberLoginIdentityMatches(String loggedInUserIdentity, String identity) {
 
         if (!identity.equals(loggedInUserIdentity)) {
             throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
@@ -80,6 +78,7 @@ public class MemberService {
     }
 
     private void checkPasswordMatch(String storedPassword, String inputPassword) {
+
         if (!storedPassword.equals(inputPassword)) {
             throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
         }

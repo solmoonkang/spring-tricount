@@ -1,6 +1,6 @@
 package kr.co.springtricount.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.AuthService;
@@ -20,18 +20,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseFormat<Void> login(HttpServletRequest request,
+    public ResponseFormat<Void> login(HttpSession httpSession,
                                       @RequestBody @Validated LoginDTO loginDTO) {
 
-        authService.login(request, loginDTO);
+        authService.login(httpSession, loginDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
 
     @PostMapping("/logout")
-    public ResponseFormat<Void> logout(HttpServletRequest request) {
+    public ResponseFormat<Void> logout(HttpSession httpSession) {
 
-        authService.logout(request);
+        authService.logout(httpSession);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }

@@ -1,9 +1,6 @@
 package kr.co.springtricount.persistence.entity;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import kr.co.springtricount.persistence.BaseEntity;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
@@ -49,7 +46,7 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    public MemberResDTO toReadDto() {
+    public MemberResDTO toMemberReadDto() {
 
         return new MemberResDTO(identity, name);
     }

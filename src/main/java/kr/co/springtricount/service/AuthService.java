@@ -1,6 +1,6 @@
 package kr.co.springtricount.service;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.exception.AuthenticationException;
 import kr.co.springtricount.infra.exception.LoginException;
@@ -18,44 +18,48 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
 
-    public void login(HttpServletRequest request, LoginDTO loginDTO) {
+    public void login(HttpSession httpSession, LoginDTO loginDTO) {
 
-        checkAlreadyLogin(request);
+        checkAlreadyLogin(httpSession);
 
         final Member findMember = memberRepository.findMemberByIdentity(loginDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
         checkPasswordMatch(findMember.getPassword(), loginDTO.password());
 
-        request.getSession().setAttribute(SessionConstant.LOGIN_MEMBER, findMember.getIdentity());
+        httpSession.setAttribute(SessionConstant.LOGIN_MEMBER, findMember.getIdentity());
     }
 
-    public void logout(HttpServletRequest request) {
+    public void logout(HttpSession httpSession) {
 
-        checkNotLogin(request);
+        checkNotLogin(httpSession);
 
-        request.getSession().invalidate();
+        httpSession.invalidate();
     }
 
     private void checkPasswordMatch(String storedPassword, String inputPassword) {
+
         if (!storedPassword.equals(inputPassword)) {
             throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 
-    private void checkAlreadyLogin(HttpServletRequest request) {
-        if (isLoggedIn(request)) {
+    private void checkAlreadyLogin(HttpSession httpSession) {
+
+        if (isLoggedIn(httpSession)) {
             throw new LoginException(ResponseStatus.FAIL_UNNECESSARY_LOGIN);
         }
     }
 
-    private void checkNotLogin(HttpServletRequest request) {
-        if (!isLoggedIn(request)) {
+    private void checkNotLogin(HttpSession httpSession) {
+
+        if (!isLoggedIn(httpSession)) {
             throw new LoginException(ResponseStatus.FAIL_UNNECESSARY_LOGOUT);
         }
     }
 
-    private boolean isLoggedIn(HttpServletRequest request) {
-        return request.getSession().getAttribute(SessionConstant.LOGIN_MEMBER) != null;
+    private boolean isLoggedIn(HttpSession httpSession) {
+
+        return httpSession.getAttribute(SessionConstant.LOGIN_MEMBER) != null;
     }
 }

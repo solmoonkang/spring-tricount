@@ -26,7 +26,10 @@ public enum ResponseStatus {
 
 
     FAIL_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "❎ [ERROR] 요청한 회원을 찾을 수 없습니다."),
-    FAIL_IDENTITY_DUPLICATION(HttpStatus.CONFLICT, "❎ [ERROR] 해당 아이디는 이미 사용 중입니다.");
+    FAIL_IDENTITY_DUPLICATION(HttpStatus.CONFLICT, "❎ [ERROR] 해당 아이디는 이미 사용 중입니다."),
+
+
+    FAIL_SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "❎ [ERROR] 요청한 정산을 찾을 수 없습니다.");
 
     private HttpStatus status;
 
