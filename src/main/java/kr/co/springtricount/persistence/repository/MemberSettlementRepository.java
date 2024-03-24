@@ -4,6 +4,7 @@ import kr.co.springtricount.persistence.entity.MemberSettlement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberSettlementRepository extends JpaRepository<MemberSettlement, Long> {
 
@@ -11,5 +12,7 @@ public interface MemberSettlementRepository extends JpaRepository<MemberSettleme
 
     boolean existsBySettlementIdAndMemberIdentity(Long settlementId, String memberIdentity);
 
-    List<MemberSettlement> findAllBySettlementId(Long memberSettlementId);
+    List<MemberSettlement> findAllBySettlementId(Long settlementId);
+
+    Optional<MemberSettlement> findByMemberIdentityAndSettlementId(String memberIdentity, Long settlementId);
 }
