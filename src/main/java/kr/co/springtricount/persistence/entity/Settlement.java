@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "tbl_settlements")
@@ -18,7 +21,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Settlement extends BaseEntity {
 
+    @Column(name = "name")
     private String name;
+
+    @OneToMany(
+            mappedBy = "settlement",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private List<Expense> expenses = new ArrayList<>();
 
     @Builder
     public Settlement(String name) {
