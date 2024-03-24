@@ -15,8 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,19 +45,18 @@ public class SettlementService {
         memberSettlementRepository.saveAll(memberSettlements);
     }
 
-    // TODO: 해당 정산에 참여한 회원만 정산 내역을 확인할 수 있는지 테스트
-    // TODO: List<MemberSettlement>가 비었는지 검증하는 로직말고 또 다른 검증이 필요한지 고민
     public List<MemberSettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
 
-        checkMemberExistence(memberSettlements);
+        checkSettlementsNotEmpty(memberSettlements);
 
-        return convertToMemberSettlementResDTOs(memberSettlements);
+        final List<MemberSettlement> allMemberSettlements = findAllMemberSettlementsForMember(memberSettlements);
+
+        return convertToMemberSettlementResDTOs(allMemberSettlements);
     }
 
-    // TODO: 해당 정산에 참여한 회원이 해당 정산 내역을 제거할 수 있는지 테스트
     @Transactional
     public void deleteSettlementById(Long settlementId, String memberLoginIdentity) {
 
@@ -74,26 +72,31 @@ public class SettlementService {
 
     private List<MemberSettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
 
-        final Map<Settlement, List<MemberSettlement>> settlementsGroupedBySettlement = memberSettlements.stream()
-                        .collect(Collectors.groupingBy(MemberSettlement::getSettlement));
-
-        return settlementsGroupedBySettlement.entrySet().stream()
+        return memberSettlements.stream()
+                .collect(Collectors.groupingBy(MemberSettlement::getSettlement))
+                .entrySet().stream()
                 .map(this::toMemberSettlementResDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private MemberSettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
-
-        final Settlement settlement = entry.getKey();
 
         List<String> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 
-        return new MemberSettlementResDTO(settlement.getName(), memberNames);
+        return new MemberSettlementResDTO(entry.getKey().getName(), memberNames);
     }
 
-    private void checkMemberExistence(List<MemberSettlement> memberSettlements) {
+    private List<MemberSettlement> findAllMemberSettlementsForMember(List<MemberSettlement> initialMemberSettlements) {
+
+        return initialMemberSettlements.stream()
+                .map(memberSettlement -> memberSettlement.getSettlement().getId())
+                .flatMap(id -> memberSettlementRepository.findAllBySettlementId(id).stream())
+                .toList();
+    }
+
+    private void checkSettlementsNotEmpty(List<MemberSettlement> memberSettlements) {
 
         if (memberSettlements.isEmpty()) {
             throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
