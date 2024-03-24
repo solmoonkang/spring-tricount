@@ -10,4 +10,6 @@ public interface MemberSettlementRepository extends JpaRepository<MemberSettleme
     List<MemberSettlement> findAllByMemberIdentity(String memberIdentity);
 
     boolean existsBySettlementIdAndMemberIdentity(Long settlementId, String memberIdentity);
+
+    List<MemberSettlement> findAllBySettlementId(Long memberSettlementId);
 }
