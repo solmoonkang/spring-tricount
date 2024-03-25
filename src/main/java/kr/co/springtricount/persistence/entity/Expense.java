@@ -3,6 +3,7 @@ package kr.co.springtricount.persistence.entity;
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.BaseEntity;
 import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -62,5 +63,16 @@ public class Expense extends BaseEntity {
                 .amount(create.amount())
                 .expenseDate(create.expenseDate())
                 .build();
+    }
+
+    public ExpenseResDTO toExpenseResDTO() {
+
+        return new ExpenseResDTO(
+                name,
+                member.getName(),
+                settlement.getName(),
+                amount,
+                expenseDate
+        );
     }
 }
