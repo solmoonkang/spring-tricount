@@ -10,7 +10,7 @@ import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
-import kr.co.springtricount.service.dto.response.MemberSettlementResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +45,7 @@ public class SettlementService {
         memberSettlementRepository.saveAll(memberSettlements);
     }
 
-    public List<MemberSettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
+    public List<SettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
@@ -70,7 +70,7 @@ public class SettlementService {
         memberSettlementRepository.deleteAll(memberSettlements);
     }
 
-    private List<MemberSettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
+    private List<SettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
 
         return memberSettlements.stream()
                 .collect(Collectors.groupingBy(MemberSettlement::getSettlement))
@@ -79,13 +79,13 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private MemberSettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
+    private SettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
 
         List<String> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 
-        return new MemberSettlementResDTO(entry.getKey().getName(), memberNames);
+        return new SettlementResDTO(entry.getKey().getName(), memberNames);
     }
 
     private List<MemberSettlement> findAllMemberSettlementsForMember(List<MemberSettlement> initialMemberSettlements) {
