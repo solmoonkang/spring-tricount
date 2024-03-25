@@ -8,10 +8,7 @@ import kr.co.springtricount.service.ExpenseService;
 import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +26,16 @@ public class ExpenseController {
         expenseService.createExpense(create, memberLoginIdentity);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
+    }
+
+    @DeleteMapping("/{expense_id}")
+    public ResponseFormat<Void> deleteExpense(@PathVariable(name = "expense_id") Long expenseId,
+                                              HttpSession httpSession) {
+
+        final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+
+        expenseService.deleteExpenseById(expenseId, memberLoginIdentity);
+
+        return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
 }
