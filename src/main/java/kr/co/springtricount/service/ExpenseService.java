@@ -11,11 +11,13 @@ import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,10 @@ public class ExpenseService {
     @Transactional
     public void createExpense(ExpenseReqDTO create, String memberLoginIdentity) {
 
-        checkMemberParticipationInSettlements(memberLoginIdentity);
+        final List<MemberSettlement> memberSettlements =
+                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+
+        checkMemberParticipationInSettlements(memberSettlements);
 
         final Settlement settlement = settlementRepository.findById(create.settlementId())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
@@ -46,10 +51,14 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
-    private void checkMemberParticipationInSettlements(String memberLoginIdentity) {
+    public List<ExpenseResDTO> findAllExpenses() {
 
-        List<MemberSettlement> memberSettlements =
-                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+        final List<Expense> expenses = expenseRepository.findAll();
+
+        return expenses.stream().map(Expense::toExpenseResDTO).collect(Collectors.toList());
+    }
+
+    private void checkMemberParticipationInSettlements(List<MemberSettlement> memberSettlements) {
 
         if (memberSettlements.isEmpty()) {
             throw new NotFoundException("참여한 정산이 없어서 지출 내역을 생성할 수 없습니다.");
