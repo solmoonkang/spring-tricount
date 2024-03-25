@@ -58,6 +58,17 @@ public class ExpenseService {
         return expenses.stream().map(Expense::toExpenseResDTO).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteExpenseById(Long expenseId, String memberLoginIdentity) {
+
+        final List<MemberSettlement> memberSettlements =
+                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+
+        checkMemberParticipationInSettlements(memberSettlements);
+
+        expenseRepository.deleteById(expenseId);
+    }
+
     private void checkMemberParticipationInSettlements(List<MemberSettlement> memberSettlements) {
 
         if (memberSettlements.isEmpty()) {
