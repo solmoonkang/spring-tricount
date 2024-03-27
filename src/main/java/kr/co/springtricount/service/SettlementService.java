@@ -10,6 +10,7 @@ import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ public class SettlementService {
     private final MemberRepository memberRepository;
 
     private final MemberSettlementRepository memberSettlementRepository;
+
+    private final ExpenseService expenseService;
 
     @Transactional
     public void createSettlement(SettlementReqDTO create) {
@@ -81,11 +84,13 @@ public class SettlementService {
 
     private SettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
 
-        List<String> memberNames = entry.getValue().stream()
+        final List<String> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 
-        return new SettlementResDTO(entry.getKey().getName(), memberNames);
+        final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
+
+        return new SettlementResDTO(entry.getKey().getName(), memberNames, expenses);
     }
 
     private List<MemberSettlement> findAllMemberSettlementsForMember(List<MemberSettlement> initialMemberSettlements) {
