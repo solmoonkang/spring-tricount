@@ -3,8 +3,8 @@ package kr.co.springtricount.controller;
 import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.AuthService;
-import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.AuthenticationService;
+import kr.co.springtricount.service.dto.request.LoginReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
-public class AuthController {
+public class AuthenticationController {
 
-    private final AuthService authService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
     public ResponseFormat<Void> login(HttpSession httpSession,
-                                      @RequestBody @Validated LoginDTO loginDTO) {
+                                      @RequestBody @Validated LoginReqDTO loginReqDTO) {
 
-        authService.login(httpSession, loginDTO);
+        authenticationService.login(httpSession, loginReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
@@ -31,7 +31,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseFormat<Void> logout(HttpSession httpSession) {
 
-        authService.logout(httpSession);
+        authenticationService.logout(httpSession);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }

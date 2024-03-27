@@ -6,7 +6,7 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.dto.request.LoginReqDTO;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -51,14 +51,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(String loggedInUserIdentity, LoginDTO loginDTO) {
+    public void deleteMember(String loggedInUserIdentity, LoginReqDTO loginReqDTO) {
 
-        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginDTO.identity());
+        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginReqDTO.identity());
 
-        final Member deleteMember = memberRepository.findMemberByIdentity(loginDTO.identity())
+        final Member deleteMember = memberRepository.findMemberByIdentity(loginReqDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        checkPasswordMatch(deleteMember.getPassword(), loginDTO.password());
+        checkPasswordMatch(deleteMember.getPassword(), loginReqDTO.password());
 
         memberRepository.delete(deleteMember);
     }

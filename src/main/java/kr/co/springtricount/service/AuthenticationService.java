@@ -8,24 +8,24 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.dto.request.LoginReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthenticationService {
 
     private final MemberRepository memberRepository;
 
-    public void login(HttpSession httpSession, LoginDTO loginDTO) {
+    public void login(HttpSession httpSession, LoginReqDTO loginReqDTO) {
 
         checkAlreadyLogin(httpSession);
 
-        final Member findMember = memberRepository.findMemberByIdentity(loginDTO.identity())
+        final Member findMember = memberRepository.findMemberByIdentity(loginReqDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        checkPasswordMatch(findMember.getPassword(), loginDTO.password());
+        checkPasswordMatch(findMember.getPassword(), loginReqDTO.password());
 
         httpSession.setAttribute(SessionConstant.LOGIN_MEMBER, findMember.getIdentity());
     }

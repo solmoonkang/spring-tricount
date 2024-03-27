@@ -5,7 +5,7 @@ import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.MemberService;
-import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.dto.request.LoginReqDTO;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -49,11 +49,11 @@ public class MemberController {
 
     @DeleteMapping
     public ResponseFormat<Void> deleteMember(HttpSession httpSession,
-                                             @RequestBody @Validated LoginDTO loginDTO) {
+                                             @RequestBody @Validated LoginReqDTO loginReqDTO) {
 
         String loggedInUserIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
 
-        memberService.deleteMember(loggedInUserIdentity, loginDTO);
+        memberService.deleteMember(loggedInUserIdentity, loginReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
