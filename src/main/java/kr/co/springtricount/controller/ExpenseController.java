@@ -17,13 +17,14 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    @PostMapping
-    public ResponseFormat<Void> createExpense(@RequestBody @Validated ExpenseReqDTO create,
+    @PostMapping("/{settlement_id}")
+    public ResponseFormat<Void> createExpense(@PathVariable(name = "settlement_id") Long settlementId,
+                                              @RequestBody @Validated ExpenseReqDTO create,
                                               HttpSession httpSession) {
 
         final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
 
-        expenseService.createExpense(create, memberLoginIdentity);
+        expenseService.createExpense(settlementId, create, memberLoginIdentity);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
