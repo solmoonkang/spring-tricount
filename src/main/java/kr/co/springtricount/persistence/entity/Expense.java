@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -37,14 +37,14 @@ public class Expense extends BaseEntity {
     private BigDecimal amount;
 
     @Column(name = "expense_date")
-    private LocalDateTime expenseDate;
+    private LocalDate expenseDate;
 
     @Builder
     public Expense(String name,
                    Member member,
                    Settlement settlement,
                    BigDecimal amount,
-                   LocalDateTime expenseDate) {
+                   LocalDate expenseDate) {
         this.name = name;
         this.member = member;
         this.settlement = settlement;
