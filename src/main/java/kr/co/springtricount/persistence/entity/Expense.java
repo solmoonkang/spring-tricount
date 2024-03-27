@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 @Entity
@@ -34,7 +35,7 @@ public class Expense extends BaseEntity {
     private Settlement settlement;
 
     @Column(name = "amount")
-    private BigDecimal amount;
+    private BigDecimal amount = new BigDecimal("123456.789");
 
     @Column(name = "expense_date")
     private LocalDate expenseDate;
@@ -48,7 +49,7 @@ public class Expense extends BaseEntity {
         this.name = name;
         this.member = member;
         this.settlement = settlement;
-        this.amount = amount;
+        this.amount = amount.setScale(0, RoundingMode.HALF_UP);
         this.expenseDate = expenseDate;
     }
 
