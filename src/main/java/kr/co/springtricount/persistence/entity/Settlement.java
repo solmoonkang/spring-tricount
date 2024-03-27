@@ -27,14 +27,16 @@ public class Settlement extends BaseEntity {
     @OneToMany(
             mappedBy = "settlement",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
+            cascade = CascadeType.REMOVE
     )
     private List<Expense> expenses = new ArrayList<>();
 
     @Builder
-    public Settlement(String name) {
+    public Settlement(String name, List<Expense> expenses) {
         this.name = name;
+        this.expenses = expenses;
     }
+
 
     public static Settlement toSettlementEntity(SettlementReqDTO create) {
 
