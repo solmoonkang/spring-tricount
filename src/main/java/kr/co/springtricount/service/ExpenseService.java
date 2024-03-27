@@ -33,18 +33,20 @@ public class ExpenseService {
     private final MemberSettlementRepository memberSettlementRepository;
 
     @Transactional
-    public void createExpense(ExpenseReqDTO create, String memberLoginIdentity) {
+    public void createExpense(Long settlementId, ExpenseReqDTO create, String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
 
         checkMemberParticipationInSettlements(memberSettlements);
 
-        final Settlement settlement = settlementRepository.findById(create.settlementId())
+        final Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
 
-        final Member member = memberRepository.findMemberByIdentity(create.memberIdentity())
-                .orElseThrow(() -> new NotFoundException("입력한 회원 아이디는 정산에 참여한 회원 아이디와 일치하지 않습니다."));
+        final Member member = memberRepository.findMemberByIdentity(memberLoginIdentity)
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+
+        isMemberParticipatingInSettlement(settlementId, create.memberIdentity());
 
         final Expense expense = Expense.toExpenseEntity(create, member, settlement);
 
@@ -73,6 +75,15 @@ public class ExpenseService {
 
         if (memberSettlements.isEmpty()) {
             throw new NotFoundException("참여한 정산이 없어서 지출 내역을 생성할 수 없습니다.");
+        }
+    }
+
+    private void isMemberParticipatingInSettlement(Long settlementId, String identity) {
+
+        boolean isParticipatedIdentity = memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, identity);
+
+        if (!isParticipatedIdentity) {
+            throw new NotFoundException("입력한 회원 아이디는 정산에 참여한 회원 아이디와 일치하지 않습니다.");
         }
     }
 }
