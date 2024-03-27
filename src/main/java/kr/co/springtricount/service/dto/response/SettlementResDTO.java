@@ -4,5 +4,6 @@ import java.util.List;
 
 public record SettlementResDTO(
         String settlementName,
-        List<String> memberNames
+        List<String> memberNames,
+        List<ExpenseResDTO> expenseList
 ) { }
