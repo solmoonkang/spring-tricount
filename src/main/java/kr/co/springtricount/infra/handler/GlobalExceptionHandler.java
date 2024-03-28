@@ -23,8 +23,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseFormat);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    protected ResponseEntity<ResponseFormat<Void>> handleAuthenticationException(AuthenticationException e) {
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    protected ResponseEntity<ResponseFormat<Void>> handleAuthenticationException(UnauthorizedAccessException e) {
         log.warn("AUTHENTICATION REQUEST: ", e);
 
         ResponseFormat<Void> responseFormat =

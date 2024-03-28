@@ -1,6 +1,6 @@
 package kr.co.springtricount.service;
 
-import kr.co.springtricount.infra.exception.AuthenticationException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
@@ -111,7 +111,7 @@ public class SettlementService {
     private void checkMemberParticipation(Long settlementId, String memberLoginIdentity) {
 
         if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberLoginIdentity)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 }

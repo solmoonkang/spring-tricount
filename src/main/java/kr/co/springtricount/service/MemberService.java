@@ -1,6 +1,6 @@
 package kr.co.springtricount.service;
 
-import kr.co.springtricount.infra.exception.AuthenticationException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
@@ -73,14 +73,14 @@ public class MemberService {
     private void checkMemberLoginIdentityMatches(String loggedInUserIdentity, String identity) {
 
         if (!identity.equals(loggedInUserIdentity)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 
     private void checkPasswordMatch(String storedPassword, String inputPassword) {
 
         if (!storedPassword.equals(inputPassword)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 }

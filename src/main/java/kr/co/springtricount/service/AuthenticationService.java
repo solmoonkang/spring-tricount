@@ -2,8 +2,8 @@ package kr.co.springtricount.service;
 
 import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.config.SessionConstant;
-import kr.co.springtricount.infra.exception.AuthenticationException;
-import kr.co.springtricount.infra.exception.LoginException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
+import kr.co.springtricount.infra.exception.LoginProcessException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
@@ -40,21 +40,21 @@ public class AuthenticationService {
     private void checkPasswordMatch(String storedPassword, String inputPassword) {
 
         if (!storedPassword.equals(inputPassword)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 
     private void checkAlreadyLogin(HttpSession httpSession) {
 
         if (isLoggedIn(httpSession)) {
-            throw new LoginException(ResponseStatus.FAIL_UNNECESSARY_LOGIN);
+            throw new LoginProcessException(ResponseStatus.FAIL_UNNECESSARY_LOGIN);
         }
     }
 
     private void checkNotLogin(HttpSession httpSession) {
 
         if (!isLoggedIn(httpSession)) {
-            throw new LoginException(ResponseStatus.FAIL_UNNECESSARY_LOGOUT);
+            throw new LoginProcessException(ResponseStatus.FAIL_UNNECESSARY_LOGOUT);
         }
     }
 
