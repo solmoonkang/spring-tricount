@@ -2,12 +2,14 @@ package kr.co.springtricount.infra.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
@@ -15,7 +17,9 @@ public class AuthInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
-        return isMemberCreationRequest(request) || isUserLoggedIn(request, response);
+        if (isMemberCreationRequest(request)) return true;
+
+        return isUserLoggedIn(request, response);
     }
 
     private boolean isMemberCreationRequest(HttpServletRequest request) {

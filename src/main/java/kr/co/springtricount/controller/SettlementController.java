@@ -6,7 +6,7 @@ import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.SettlementService;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
-import kr.co.springtricount.service.dto.response.MemberSettlementResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class SettlementController {
     }
 
     @GetMapping
-    public ResponseFormat<List<MemberSettlementResDTO>> findAllSettlementsByMember(HttpSession httpSession) {
+    public ResponseFormat<List<SettlementResDTO>> findAllSettlementsByMember(HttpSession httpSession) {
 
         final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
 

@@ -1,6 +1,6 @@
 package kr.co.springtricount.service;
 
-import kr.co.springtricount.infra.exception.AuthenticationException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
@@ -10,7 +10,8 @@ import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
-import kr.co.springtricount.service.dto.response.MemberSettlementResDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,8 @@ public class SettlementService {
 
     private final MemberSettlementRepository memberSettlementRepository;
 
+    private final ExpenseService expenseService;
+
     @Transactional
     public void createSettlement(SettlementReqDTO create) {
 
@@ -45,7 +48,7 @@ public class SettlementService {
         memberSettlementRepository.saveAll(memberSettlements);
     }
 
-    public List<MemberSettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
+    public List<SettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
@@ -70,7 +73,7 @@ public class SettlementService {
         memberSettlementRepository.deleteAll(memberSettlements);
     }
 
-    private List<MemberSettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
+    private List<SettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
 
         return memberSettlements.stream()
                 .collect(Collectors.groupingBy(MemberSettlement::getSettlement))
@@ -79,13 +82,15 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private MemberSettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
+    private SettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
 
-        List<String> memberNames = entry.getValue().stream()
+        final List<String> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 
-        return new MemberSettlementResDTO(entry.getKey().getName(), memberNames);
+        final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
+
+        return new SettlementResDTO(entry.getKey().getName(), memberNames, expenses);
     }
 
     private List<MemberSettlement> findAllMemberSettlementsForMember(List<MemberSettlement> initialMemberSettlements) {
@@ -106,7 +111,7 @@ public class SettlementService {
     private void checkMemberParticipation(Long settlementId, String memberLoginIdentity) {
 
         if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberLoginIdentity)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 }

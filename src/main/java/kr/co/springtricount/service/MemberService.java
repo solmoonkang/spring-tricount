@@ -1,12 +1,12 @@
 package kr.co.springtricount.service;
 
-import kr.co.springtricount.infra.exception.AuthenticationException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.dto.request.LoginReqDTO;
 import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -51,14 +51,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(String loggedInUserIdentity, LoginDTO loginDTO) {
+    public void deleteMember(String loggedInUserIdentity, LoginReqDTO loginReqDTO) {
 
-        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginDTO.identity());
+        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginReqDTO.identity());
 
-        final Member deleteMember = memberRepository.findMemberByIdentity(loginDTO.identity())
+        final Member deleteMember = memberRepository.findMemberByIdentity(loginReqDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        checkPasswordMatch(deleteMember.getPassword(), loginDTO.password());
+        checkPasswordMatch(deleteMember.getPassword(), loginReqDTO.password());
 
         memberRepository.delete(deleteMember);
     }
@@ -73,14 +73,14 @@ public class MemberService {
     private void checkMemberLoginIdentityMatches(String loggedInUserIdentity, String identity) {
 
         if (!identity.equals(loggedInUserIdentity)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 
     private void checkPasswordMatch(String storedPassword, String inputPassword) {
 
         if (!storedPassword.equals(inputPassword)) {
-            throw new AuthenticationException(ResponseStatus.FAIL_UNAUTHORIZED);
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 }
