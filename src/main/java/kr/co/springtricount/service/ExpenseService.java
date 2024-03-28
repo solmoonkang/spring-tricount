@@ -68,7 +68,10 @@ public class ExpenseService {
 
         checkMemberParticipationInSettlements(memberSettlements);
 
-        expenseRepository.deleteById(expenseId);
+        final Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new NotFoundException("요청한 지출 내역을 찾을 수 없습니다."));
+
+        expenseRepository.delete(expense);
     }
 
     private void checkMemberParticipationInSettlements(List<MemberSettlement> memberSettlements) {
