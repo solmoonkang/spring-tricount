@@ -1,6 +1,7 @@
 package kr.co.springtricount.persistence.entity;
 
 import jakarta.persistence.*;
+import kr.co.springtricount.infra.response.BigDecimalFormatter;
 import kr.co.springtricount.persistence.BaseEntity;
 import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
 import kr.co.springtricount.service.dto.response.ExpenseResDTO;
@@ -72,7 +73,7 @@ public class Expense extends BaseEntity {
                 name,
                 member.getName(),
                 settlement.getName(),
-                amount,
+                BigDecimalFormatter.formatWithComma(amount),
                 expenseDate
         );
     }
