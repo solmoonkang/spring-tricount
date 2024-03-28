@@ -57,7 +57,9 @@ public class ExpenseService {
 
         final List<Expense> expenses = expenseRepository.findAll();
 
-        return expenses.stream().map(Expense::toExpenseResDTO).collect(Collectors.toList());
+        return expenses.stream()
+                .map(Expense::toExpenseResDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class ExpenseService {
         checkMemberParticipationInSettlements(memberSettlements);
 
         final Expense expense = expenseRepository.findById(expenseId)
-                .orElseThrow(() -> new NotFoundException("요청한 지출 내역을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_EXPENSE_NOT_FOUND));
 
         expenseRepository.delete(expense);
     }
@@ -77,7 +79,7 @@ public class ExpenseService {
     private void checkMemberParticipationInSettlements(List<MemberSettlement> memberSettlements) {
 
         if (memberSettlements.isEmpty()) {
-            throw new NotFoundException("참여한 정산이 없어서 지출 내역을 생성할 수 없습니다.");
+            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
     }
 
@@ -86,7 +88,7 @@ public class ExpenseService {
         boolean isParticipatedIdentity = memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, identity);
 
         if (!isParticipatedIdentity) {
-            throw new NotFoundException("입력한 회원 아이디는 정산에 참여한 회원 아이디와 일치하지 않습니다.");
+            throw new NotFoundException(ResponseStatus.FAIL_IDENTITY_NOT_FOUND);
         }
     }
 }
