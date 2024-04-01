@@ -24,10 +24,15 @@ public class Balance extends BaseEntity {
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
+    @Column(name = "average_amount")
+    private BigDecimal averageAmount;
+
     @Builder
     public Balance(Settlement settlement,
-                   BigDecimal totalAmount) {
+                   BigDecimal totalAmount,
+                   BigDecimal averageAmount) {
         this.settlement = settlement;
         this.totalAmount = totalAmount;
+        this.averageAmount = averageAmount;
     }
 }
