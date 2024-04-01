@@ -43,7 +43,7 @@ public class ExpenseService {
         final Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
 
-        final Member member = memberRepository.findMemberByIdentity(memberLoginIdentity)
+        final Member member = memberRepository.findMemberByIdentity(create.memberIdentity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
         isMemberParticipatingInSettlement(settlementId, create.memberIdentity());
