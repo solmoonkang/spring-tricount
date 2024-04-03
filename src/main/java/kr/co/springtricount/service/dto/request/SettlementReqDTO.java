@@ -7,5 +7,5 @@ import java.util.List;
 
 public record SettlementReqDTO(
         @NotBlank(message = "정산 이름을 입력해주세요.") String settlementName,
-        @NotEmpty(message = "정산에 참여할 회원의 이름을 입력해주세요.") List<String> memberIdentities
+        @NotEmpty(message = "정산에 참여할 회원의 아이디를 입력해주세요.") List<String> memberIdentities
 ) { }
