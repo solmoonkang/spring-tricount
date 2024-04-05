@@ -1,14 +1,14 @@
 package kr.co.springtricount.service.service;
 
-import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.exception.DuplicatedException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.request.LoginDTO;
 import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.request.SignupDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +22,16 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Transactional
-    public void createMember(MemberDTO create) {
+    public void createMember(SignupDTO signupDTO) {
 
-        checkIdentityExists(create.identity());
+        checkIdentityExists(signupDTO.identity());
 
-        final Member member = Member.toMemberEntity(create);
+        final Member member = Member.toMemberEntity(
+                signupDTO, passwordEncoder.encode(signupDTO.password())
+        );
 
         memberRepository.save(member);
     }
@@ -50,14 +54,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(String loggedInUserIdentity, LoginDTO loginDTO) {
+    public void deleteMember(Long memberId) {
 
-        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginDTO.identity());
-
-        final Member deleteMember = memberRepository.findMemberByIdentity(loginDTO.identity())
+        final Member deleteMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
-
-        checkPasswordMatch(deleteMember.getPassword(), loginDTO.password());
 
         memberRepository.delete(deleteMember);
     }
@@ -66,20 +66,6 @@ public class MemberService {
 
         if (memberRepository.existsMemberByIdentity(identity)) {
             throw new DuplicatedException(ResponseStatus.FAIL_IDENTITY_DUPLICATION);
-        }
-    }
-
-    private void checkMemberLoginIdentityMatches(String loggedInUserIdentity, String identity) {
-
-        if (!identity.equals(loggedInUserIdentity)) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
-        }
-    }
-
-    private void checkPasswordMatch(String storedPassword, String inputPassword) {
-
-        if (!storedPassword.equals(inputPassword)) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
     }
 }
