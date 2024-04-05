@@ -1,7 +1,6 @@
 package kr.co.springtricount.controller;
 
 import jakarta.servlet.http.HttpSession;
-import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.MemberService;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static kr.co.springtricount.infra.config.SessionConstant.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
@@ -21,8 +22,8 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping
-    public ResponseFormat<Void> createMember(@RequestBody @Validated MemberReqDTO create) {
+    @PostMapping("/signup")
+    public ResponseFormat<Void> createMember(@Validated @RequestBody MemberReqDTO create) {
 
         memberService.createMember(create);
 
@@ -51,7 +52,7 @@ public class MemberController {
     public ResponseFormat<Void> deleteMember(HttpSession httpSession,
                                              @RequestBody @Validated LoginReqDTO loginReqDTO) {
 
-        String loggedInUserIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+        String loggedInUserIdentity = (String) httpSession.getAttribute(LOGIN_MEMBER);
 
         memberService.deleteMember(loggedInUserIdentity, loginReqDTO);
 
