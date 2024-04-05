@@ -3,7 +3,7 @@ package kr.co.springtricount.infra.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.annotation.Login;
-import kr.co.springtricount.service.dto.request.MemberReqDTO;
+import kr.co.springtricount.service.dto.MemberDTO;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -21,7 +21,7 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
 
         boolean hasLoginAnnotation = parameter.hasParameterAnnotation(Login.class);
 
-        boolean hasMemberType = parameter.getParameterType().isAssignableFrom(MemberReqDTO.class);
+        boolean hasMemberType = parameter.getParameterType().isAssignableFrom(MemberDTO.class);
 
         return hasLoginAnnotation && hasMemberType;
     }
@@ -41,13 +41,13 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
         return null;
     }
 
-    private MemberReqDTO resolveArgumentIfRequestIsNotNull(HttpServletRequest request) {
+    private MemberDTO resolveArgumentIfRequestIsNotNull(HttpServletRequest request) {
 
         HttpSession httpSession = request.getSession(false);
 
         if (httpSession != null &&
                 httpSession.getAttribute(LOGIN_MEMBER) != null &&
-                httpSession.getAttribute(LOGIN_MEMBER) instanceof MemberReqDTO member) {
+                httpSession.getAttribute(LOGIN_MEMBER) instanceof MemberDTO member) {
 
             return member;
         }
