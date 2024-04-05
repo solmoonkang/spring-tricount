@@ -1,6 +1,5 @@
 package kr.co.springtricount.controller;
 
-import com.sun.security.auth.UserPrincipal;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
@@ -9,6 +8,7 @@ import kr.co.springtricount.service.dto.response.BalanceResDTO;
 import kr.co.springtricount.service.service.SettlementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +26,7 @@ public class BalanceController {
     private final SettlementService settlementService;
 
     @GetMapping("/{settlement_id}")
-    public ResponseFormat<List<BalanceResDTO>> findBalanceBySettlement(@AuthenticationPrincipal UserPrincipal currentMember,
+    public ResponseFormat<List<BalanceResDTO>> findBalanceBySettlement(@AuthenticationPrincipal User currentMember,
                                                                        @PathVariable("settlement_id") Long settlementId) {
 
         SettlementResDTO settlement = settlementService.findSettlementById(currentMember, settlementId);

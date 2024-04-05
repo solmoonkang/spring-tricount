@@ -1,6 +1,5 @@
 package kr.co.springtricount.service.service;
 
-import com.sun.security.auth.UserPrincipal;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Expense;
@@ -15,6 +14,7 @@ import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
 import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,9 +35,9 @@ public class ExpenseService {
     private final MemberSettlementRepository memberSettlementRepository;
 
     @Transactional
-    public void createExpense(UserPrincipal currentMember, ExpenseReqDTO expenseReqDTO) {
+    public void createExpense(User currentMember, ExpenseReqDTO expenseReqDTO) {
 
-        isMemberParticipatingInSettlement(expenseReqDTO.settlementId(), currentMember.getName());
+        isMemberParticipatingInSettlement(expenseReqDTO.settlementId(), currentMember.getUsername());
 
         final Settlement settlement = settlementRepository.findById(expenseReqDTO.settlementId())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
@@ -70,10 +70,10 @@ public class ExpenseService {
     }
 
     @Transactional
-    public void deleteExpenseById(UserPrincipal currentMember, Long expenseId) {
+    public void deleteExpenseById(User currentMember, Long expenseId) {
 
         final List<MemberSettlement> memberSettlements =
-                memberSettlementRepository.findAllByMemberIdentity(currentMember.getName());
+                memberSettlementRepository.findAllByMemberIdentity(currentMember.getUsername());
 
         checkMemberParticipationInSettlements(memberSettlements);
 
