@@ -1,6 +1,5 @@
 package kr.co.springtricount.service.service;
 
-import com.sun.security.auth.UserPrincipal;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
@@ -14,6 +13,7 @@ import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +34,9 @@ public class SettlementService {
     private final ExpenseService expenseService;
 
     @Transactional
-    public void createSettlement(UserPrincipal currentMember, SettlementReqDTO settlementReqDTO) {
+    public void createSettlement(User currentMember, SettlementReqDTO settlementReqDTO) {
 
-        final Member loginMember = memberRepository.findMemberByIdentity(currentMember.getName())
+        final Member loginMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
         final Settlement settlement = Settlement.toSettlementEntity(settlementReqDTO);
@@ -49,9 +49,9 @@ public class SettlementService {
         memberSettlementRepository.save(memberSettlement);
     }
 
-    public SettlementResDTO findSettlementById(UserPrincipal currentMember, Long settlementId) {
+    public SettlementResDTO findSettlementById(User currentMember, Long settlementId) {
 
-        checkMemberParticipation(settlementId, currentMember.getName());
+        checkMemberParticipation(settlementId, currentMember.getUsername());
 
         final Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
@@ -67,9 +67,9 @@ public class SettlementService {
     }
 
     @Transactional
-    public void deleteSettlementById(UserPrincipal currentMember, Long settlementId) {
+    public void deleteSettlementById(User currentMember, Long settlementId) {
 
-        checkMemberParticipation(settlementId, currentMember.getName());
+        checkMemberParticipation(settlementId, currentMember.getUsername());
 
         List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllBySettlementId(settlementId);
