@@ -1,18 +1,15 @@
 package kr.co.springtricount.controller;
 
-import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.service.dto.request.SignupDTO;
 import kr.co.springtricount.service.service.MemberService;
-import kr.co.springtricount.service.dto.request.LoginDTO;
 import kr.co.springtricount.service.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static kr.co.springtricount.infra.config.SessionConstant.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,9 +19,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseFormat<Void> createMember(@Validated @RequestBody MemberDTO create) {
+    public ResponseFormat<Void> createMember(@Validated @RequestBody SignupDTO signupDTO) {
 
-        memberService.createMember(create);
+        memberService.createMember(signupDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
@@ -47,13 +44,10 @@ public class MemberController {
         );
     }
 
-    @DeleteMapping
-    public ResponseFormat<Void> deleteMember(HttpSession httpSession,
-                                             @RequestBody @Validated LoginDTO loginDTO) {
+    @DeleteMapping("/{member_id}")
+    public ResponseFormat<Void> deleteMember(@PathVariable(name = "member_id") Long memberId) {
 
-        String loggedInUserIdentity = (String) httpSession.getAttribute(LOGIN_MEMBER);
-
-        memberService.deleteMember(loggedInUserIdentity, loginDTO);
+        memberService.deleteMember(memberId);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
