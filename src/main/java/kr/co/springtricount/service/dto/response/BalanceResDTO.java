@@ -6,5 +6,4 @@ public record BalanceResDTO(
         Long senderAmount,
         Long receiverMemberNo,
         String receiverMemberName
-) {
-}
+) { }
