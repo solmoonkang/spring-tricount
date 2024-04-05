@@ -9,9 +9,9 @@ import kr.co.springtricount.persistence.entity.Settlement;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
-import kr.co.springtricount.service.dto.request.SettlementReqDTO;
-import kr.co.springtricount.service.dto.response.ExpenseResDTO;
-import kr.co.springtricount.service.dto.response.SettlementResDTO;
+import kr.co.springtricount.service.dto.ExpenseDTO;
+import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.SettlementDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +33,11 @@ public class SettlementService {
     private final ExpenseService expenseService;
 
     @Transactional
-    public void createSettlement(SettlementReqDTO create) {
+    public void createSettlement(SettlementDTO create) {
 
         final Settlement settlement = Settlement.toSettlementEntity(create);
 
-        final List<Member> members = memberRepository.findAllByIdentityIn(create.memberIdentities());
+        final List<MemberDTO> members = memberRepository.findAllByIdentityIn(create.participants());
 
         final List<MemberSettlement> memberSettlements = members.stream()
                         .map(member -> MemberSettlement.toMemberSettlementEntity(member, settlement))
@@ -48,7 +48,7 @@ public class SettlementService {
         memberSettlementRepository.saveAll(memberSettlements);
     }
 
-    public List<SettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
+    public List<SettlementDTO> findAllSettlementsByMember(String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
@@ -58,6 +58,15 @@ public class SettlementService {
         final List<MemberSettlement> allMemberSettlements = findAllMemberSettlementsForMember(memberSettlements);
 
         return convertToMemberSettlementResDTOs(allMemberSettlements);
+    }
+
+    public SettlementDTO findSettlementById(MemberDTO memberDTO, Long settlementId) {
+
+        final Member member = new Member(memberDTO.id(), memberDTO.identity(), memberDTO.name(), null);
+
+        return settlementRepository.findSettlementByMemberId(member, settlementId)
+                .map(settlement -> getSettlementDto(settlement, member))
+                .orElse(null);
     }
 
     @Transactional
@@ -73,7 +82,7 @@ public class SettlementService {
         memberSettlementRepository.deleteAll(memberSettlements);
     }
 
-    private List<SettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
+    private List<SettlementDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
 
         return memberSettlements.stream()
                 .collect(Collectors.groupingBy(MemberSettlement::getSettlement))
@@ -82,15 +91,15 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private SettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
+    private SettlementDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
 
-        final List<String> memberNames = entry.getValue().stream()
+        final List<MemberDTO> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 
-        final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
+        final List<ExpenseDTO> expenses = expenseService.findAllExpenses();
 
-        return new SettlementResDTO(entry.getKey().getName(), memberNames, expenses);
+        return new SettlementDTO(null, entry.getKey().getName(), memberNames, expenses);
     }
 
     private List<MemberSettlement> findAllMemberSettlementsForMember(List<MemberSettlement> initialMemberSettlements) {
