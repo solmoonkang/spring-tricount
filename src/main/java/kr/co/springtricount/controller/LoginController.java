@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.LoginService;
+import kr.co.springtricount.service.service.LoginService;
 import kr.co.springtricount.service.dto.MemberDTO;
 import kr.co.springtricount.service.dto.request.LoginDTO;
 import lombok.RequiredArgsConstructor;

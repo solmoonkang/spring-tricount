@@ -3,7 +3,7 @@ package kr.co.springtricount.controller;
 import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.SettlementService;
+import kr.co.springtricount.service.service.SettlementService;
 import kr.co.springtricount.service.dto.MemberDTO;
 import kr.co.springtricount.service.dto.SettlementDTO;
 import lombok.RequiredArgsConstructor;
