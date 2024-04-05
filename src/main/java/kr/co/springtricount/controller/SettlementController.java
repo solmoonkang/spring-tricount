@@ -1,6 +1,5 @@
 package kr.co.springtricount.controller;
 
-import com.sun.security.auth.UserPrincipal;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
@@ -8,6 +7,7 @@ import kr.co.springtricount.service.service.SettlementService;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +19,7 @@ public class SettlementController {
     private final SettlementService settlementService;
 
     @PostMapping
-    public ResponseFormat<Void> createSettlement(@AuthenticationPrincipal UserPrincipal currentMember,
+    public ResponseFormat<Void> createSettlement(@AuthenticationPrincipal User currentMember,
                                                  @RequestBody @Validated SettlementReqDTO settlementReqDTO) {
 
         settlementService.createSettlement(currentMember, settlementReqDTO);
@@ -28,7 +28,7 @@ public class SettlementController {
     }
 
     @GetMapping("/{settlement_id}")
-    public ResponseFormat<SettlementResDTO> findSettlementById(@AuthenticationPrincipal UserPrincipal currentMember,
+    public ResponseFormat<SettlementResDTO> findSettlementById(@AuthenticationPrincipal User currentMember,
                                                                @PathVariable("settlement_id") Long settlementId) {
 
         return ResponseFormat.successMessageWithData(
@@ -38,7 +38,7 @@ public class SettlementController {
     }
 
     @DeleteMapping("/{settlement_id}")
-    public ResponseFormat<Void> deleteSettlementById(@AuthenticationPrincipal UserPrincipal currentMember,
+    public ResponseFormat<Void> deleteSettlementById(@AuthenticationPrincipal User currentMember,
                                                      @PathVariable("settlement_id") Long settlementId) {
 
 
