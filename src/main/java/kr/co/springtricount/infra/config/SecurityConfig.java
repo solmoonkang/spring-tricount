@@ -1,5 +1,6 @@
 package kr.co.springtricount.infra.config;
 
+import kr.co.springtricount.infra.security.MemberDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,36 +9,36 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final MemberDetailService memberDetailService;
+
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+
+        httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/api/v1/members/signup").permitAll()
                 .requestMatchers("/api/v1/**").authenticated();
 
-        httpSecurity.formLogin().permitAll()
-                .defaultSuccessUrl("/api/v1/members");
+        httpSecurity.formLogin()
+                .loginProcessingUrl("/login")
+                .usernameParameter("identity")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/api/v1/members", true);
 
         httpSecurity.logout()
-                .logoutSuccessUrl("/login")
-                .logoutSuccessHandler(logoutSuccessHandler())
-                .deleteCookies("remember-me");
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login");
+
+        httpSecurity.userDetailsService(memberDetailService);
 
         return httpSecurity.build();
-    }
-
-    private LogoutSuccessHandler logoutSuccessHandler() {
-
-        return ((request, response, authentication) -> {
-            response.sendRedirect("/login");
-        });
     }
 
     @Bean
