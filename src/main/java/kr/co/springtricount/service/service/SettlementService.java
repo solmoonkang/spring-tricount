@@ -10,7 +10,7 @@ import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.service.dto.ExpenseDTO;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import kr.co.springtricount.service.dto.SettlementDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class SettlementService {
 
         final Settlement settlement = Settlement.toSettlementEntity(create);
 
-        final List<MemberDTO> members = memberRepository.findAllByIdentityIn(create.participants());
+        final List<MemberResDTO> members = memberRepository.findAllByIdentityIn(create.participants());
 
         final List<MemberSettlement> memberSettlements = members.stream()
                         .map(member -> MemberSettlement.toMemberSettlementEntity(member, settlement))
@@ -60,9 +60,9 @@ public class SettlementService {
         return convertToMemberSettlementResDTOs(allMemberSettlements);
     }
 
-    public SettlementDTO findSettlementById(MemberDTO memberDTO, Long settlementId) {
+    public SettlementDTO findSettlementById(MemberResDTO memberResDTO, Long settlementId) {
 
-        final Member member = new Member(memberDTO.id(), memberDTO.identity(), memberDTO.name(), null);
+        final Member member = new Member(memberResDTO.id(), memberResDTO.identity(), memberResDTO.name(), null);
 
         return settlementRepository.findSettlementByMemberId(member, settlementId)
                 .map(settlement -> getSettlementDto(settlement, member))
@@ -93,7 +93,7 @@ public class SettlementService {
 
     private SettlementDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
 
-        final List<MemberDTO> memberNames = entry.getValue().stream()
+        final List<MemberResDTO> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 

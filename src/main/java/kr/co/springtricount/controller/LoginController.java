@@ -6,7 +6,7 @@ import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.service.LoginService;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import kr.co.springtricount.service.dto.request.LoginDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -25,8 +25,8 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping("/login")
-    public ResponseFormat<MemberDTO> login(HttpServletRequest request,
-                                           @Validated @RequestBody LoginDTO login) {
+    public ResponseFormat<MemberResDTO> login(HttpServletRequest request,
+                                              @Validated @RequestBody LoginDTO login) {
 
         loginService.login(login.identity(), login.password());
 
@@ -39,7 +39,7 @@ public class LoginController {
 
     @PostMapping("/logout")
     public ResponseFormat<Void> logout(HttpServletRequest request,
-                                       @Login MemberDTO member) {
+                                       @Login MemberResDTO member) {
 
         HttpSession httpSession = request.getSession(false);
 

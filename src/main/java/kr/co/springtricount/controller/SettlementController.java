@@ -4,7 +4,7 @@ import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.service.SettlementService;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import kr.co.springtricount.service.dto.SettlementDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -28,7 +28,7 @@ public class SettlementController {
     }
 
     @GetMapping
-    public ResponseFormat<List<SettlementDTO>> findAllSettlementsByMember(@Login MemberDTO member) {
+    public ResponseFormat<List<SettlementDTO>> findAllSettlementsByMember(@Login MemberResDTO member) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
@@ -38,7 +38,7 @@ public class SettlementController {
 
     @DeleteMapping("/{settlement_id}")
     public ResponseFormat<Void> deleteSettlementById(@PathVariable(name = "settlement_id") Long settlementId,
-                                                     @Login MemberDTO member) {
+                                                     @Login MemberResDTO member) {
 
 
         settlementService.deleteSettlementById(settlementId, member.identity());

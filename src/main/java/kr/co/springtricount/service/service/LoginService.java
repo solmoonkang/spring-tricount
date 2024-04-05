@@ -4,7 +4,7 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +20,6 @@ public class LoginService {
                 .filter(findMember -> findMember.getPassword().equals(password))
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        new MemberDTO(null, member.getIdentity(), member.getName(), null);
+        new MemberResDTO(null, member.getIdentity(), member.getName(), null);
     }
 }

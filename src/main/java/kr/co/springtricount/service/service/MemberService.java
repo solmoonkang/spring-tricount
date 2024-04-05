@@ -5,7 +5,7 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import kr.co.springtricount.service.dto.request.SignupDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,21 +36,28 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public List<MemberDTO> findAllMember() {
+    public List<MemberResDTO> findAllMember() {
 
         final List<Member> findMember = memberRepository.findAll();
 
         return findMember.stream()
-                .map(Member::toMemberReadDto)
+                .map(member -> new MemberResDTO(
+                        member.getId(),
+                        member.getIdentity(),
+                        member.getName()))
                 .collect(Collectors.toList());
     }
 
-    public MemberDTO findMemberByIdentity(String identity) {
+    public MemberResDTO findMemberByIdentity(String identity) {
 
         final Member findMember = memberRepository.findMemberByIdentity(identity)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        return findMember.toMemberReadDto();
+        return new MemberResDTO(
+                findMember.getId(),
+                findMember.getIdentity(),
+                findMember.getName()
+        );
     }
 
     @Transactional

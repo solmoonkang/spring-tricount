@@ -4,7 +4,7 @@ import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.request.SignupDTO;
 import kr.co.springtricount.service.service.MemberService;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,7 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseFormat<List<MemberDTO>> findAllMember() {
+    public ResponseFormat<List<MemberResDTO>> findAllMember() {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
@@ -36,7 +36,7 @@ public class MemberController {
     }
 
     @GetMapping("/{identity}")
-    public ResponseFormat<MemberDTO> findMemberByIdentity(@PathVariable String identity) {
+    public ResponseFormat<MemberResDTO> findMemberByIdentity(@PathVariable("identity") String identity) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
@@ -45,7 +45,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/{member_id}")
-    public ResponseFormat<Void> deleteMember(@PathVariable(name = "member_id") Long memberId) {
+    public ResponseFormat<Void> deleteMember(@PathVariable("member_id") Long memberId) {
 
         memberService.deleteMember(memberId);
 

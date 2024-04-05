@@ -4,7 +4,7 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.BalanceDTO;
 import kr.co.springtricount.service.dto.ExpenseDTO;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import kr.co.springtricount.service.dto.SettlementDTO;
 import lombok.With;
 import org.springframework.stereotype.Service;
@@ -28,13 +28,13 @@ public class BalanceService {
         }
 
         List<ExpenseDTO> expenses = settlement.expenses();
-        List<MemberDTO> participants = settlement.participants();
+        List<MemberResDTO> participants = settlement.participants();
 
         BigDecimal totalAmount = getTotalAmount(expenses);
         BigDecimal averageAmount = totalAmount.divide(BigDecimal.valueOf(participants.size()), RoundingMode.DOWN);
 
-        Map<MemberDTO, BigDecimal> memberExpenseMap = getMemberExpenseMap(expenses);
-        Map<MemberDTO, BigDecimal> memberAmountMap = getMemberAmountMap(participants, memberExpenseMap, averageAmount);
+        Map<MemberResDTO, BigDecimal> memberExpenseMap = getMemberExpenseMap(expenses);
+        Map<MemberResDTO, BigDecimal> memberAmountMap = getMemberAmountMap(participants, memberExpenseMap, averageAmount);
 
         List<Balance> receiver = getMemberBigDecimals(
                 memberAmountMap,
@@ -93,8 +93,8 @@ public class BalanceService {
     }
 
     private static List<Balance> getMemberBigDecimals(
-            Map<MemberDTO, BigDecimal> memberAmountMap,
-            Predicate<Map.Entry<MemberDTO, BigDecimal>> entryPredicate,
+            Map<MemberResDTO, BigDecimal> memberAmountMap,
+            Predicate<Map.Entry<MemberResDTO, BigDecimal>> entryPredicate,
             Comparator<Balance> comparing) {
 
         return memberAmountMap.entrySet().stream()
@@ -104,9 +104,9 @@ public class BalanceService {
                 .toList();
     }
 
-    private Map<MemberDTO, BigDecimal> getMemberAmountMap(
-            List<MemberDTO> participants,
-            Map<MemberDTO, BigDecimal> memberExpenseMap,
+    private Map<MemberResDTO, BigDecimal> getMemberAmountMap(
+            List<MemberResDTO> participants,
+            Map<MemberResDTO, BigDecimal> memberExpenseMap,
             BigDecimal averageAmount) {
 
         return participants.stream()
@@ -116,7 +116,7 @@ public class BalanceService {
                         ));
     }
 
-    private Map<MemberDTO, BigDecimal> getMemberExpenseMap(List<ExpenseDTO> expenses) {
+    private Map<MemberResDTO, BigDecimal> getMemberExpenseMap(List<ExpenseDTO> expenses) {
 
         return expenses.stream()
                 .collect(Collectors.groupingBy(
@@ -134,7 +134,7 @@ public class BalanceService {
     }
 
     private record Balance(
-            MemberDTO member,
+            MemberResDTO member,
             @With BigDecimal amount
     ) { }
 }

@@ -3,7 +3,7 @@ package kr.co.springtricount.infra.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import kr.co.springtricount.service.dto.MemberDTO;
+import kr.co.springtricount.service.dto.MemberResDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -21,7 +21,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         if (httpSession != null &&
                 httpSession.getAttribute(LOGIN_MEMBER) != null &&
-                httpSession.getAttribute(LOGIN_MEMBER) instanceof MemberDTO) {
+                httpSession.getAttribute(LOGIN_MEMBER) instanceof MemberResDTO) {
 
             return true;
         }

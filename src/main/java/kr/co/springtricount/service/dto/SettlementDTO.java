@@ -5,6 +5,6 @@ import java.util.List;
 public record SettlementDTO(
         Long id,
         String settlementName,
-        List<MemberDTO> participants,
+        List<MemberResDTO> participants,
         List<ExpenseDTO> expenses
 ) { }
