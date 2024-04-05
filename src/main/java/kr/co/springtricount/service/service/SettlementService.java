@@ -1,7 +1,6 @@
 package kr.co.springtricount.service.service;
 
 import com.sun.security.auth.UserPrincipal;
-import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
