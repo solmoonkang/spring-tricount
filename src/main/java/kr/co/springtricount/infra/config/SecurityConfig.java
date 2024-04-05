@@ -19,7 +19,8 @@ public class SecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.authorizeHttpRequests()
-                .requestMatchers("/api/v1/members/**").authenticated();
+                .requestMatchers("/api/v1/members/signup").permitAll()
+                .requestMatchers("/api/v1/**").authenticated();
 
         httpSecurity.formLogin().permitAll()
                 .defaultSuccessUrl("/api/v1/members");
