@@ -6,9 +6,8 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.request.LoginReqDTO;
-import kr.co.springtricount.service.dto.request.MemberReqDTO;
-import kr.co.springtricount.service.dto.response.MemberResDTO;
+import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void createMember(MemberReqDTO create) {
+    public void createMember(MemberDTO create) {
 
         checkIdentityExists(create.identity());
 
@@ -33,7 +32,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public List<MemberResDTO> findAllMember() {
+    public List<MemberDTO> findAllMember() {
 
         final List<Member> findMember = memberRepository.findAll();
 
@@ -42,7 +41,7 @@ public class MemberService {
                 .collect(Collectors.toList());
     }
 
-    public MemberResDTO findMemberByIdentity(String identity) {
+    public MemberDTO findMemberByIdentity(String identity) {
 
         final Member findMember = memberRepository.findMemberByIdentity(identity)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
@@ -51,14 +50,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(String loggedInUserIdentity, LoginReqDTO loginReqDTO) {
+    public void deleteMember(String loggedInUserIdentity, LoginDTO loginDTO) {
 
-        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginReqDTO.identity());
+        checkMemberLoginIdentityMatches(loggedInUserIdentity, loginDTO.identity());
 
-        final Member deleteMember = memberRepository.findMemberByIdentity(loginReqDTO.identity())
+        final Member deleteMember = memberRepository.findMemberByIdentity(loginDTO.identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        checkPasswordMatch(deleteMember.getPassword(), loginReqDTO.password());
+        checkPasswordMatch(deleteMember.getPassword(), loginDTO.password());
 
         memberRepository.delete(deleteMember);
     }
