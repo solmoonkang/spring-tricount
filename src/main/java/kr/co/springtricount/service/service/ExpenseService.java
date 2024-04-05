@@ -13,6 +13,7 @@ import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
 import kr.co.springtricount.service.dto.response.ExpenseResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +59,11 @@ public class ExpenseService {
                         expense.getId(),
                         expense.getName(),
                         expense.getSettlement().getId(),
-                        expense.getMember().getIdentity(),
+                        new MemberResDTO(
+                                expense.getMember().getId(),
+                                expense.getMember().getIdentity(),
+                                expense.getMember().getName()
+                        ),
                         expense.getAmount(),
                         expense.getExpenseDate()))
                 .collect(Collectors.toList());
