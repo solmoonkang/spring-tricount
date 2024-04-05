@@ -8,33 +8,23 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.request.LoginReqDTO;
+import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class LoginService {
 
     private final MemberRepository memberRepository;
 
-    public void login(HttpSession httpSession, LoginReqDTO loginReqDTO) {
+    public void login(String identity, String password) {
 
-        checkAlreadyLogin(httpSession);
-
-        final Member findMember = memberRepository.findMemberByIdentity(loginReqDTO.identity())
+        final Member member = memberRepository.findMemberByIdentity(identity)
+                .filter(findMember -> findMember.getPassword().equals(password))
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        checkPasswordMatch(findMember.getPassword(), loginReqDTO.password());
-
-        httpSession.setAttribute(SessionConstant.LOGIN_MEMBER, findMember.getIdentity());
-    }
-
-    public void logout(HttpSession httpSession) {
-
-        checkNotLogin(httpSession);
-
-        httpSession.invalidate();
+        new MemberReqDTO(member.getIdentity(), member.getName(), null);
     }
 
     private void checkPasswordMatch(String storedPassword, String inputPassword) {
@@ -48,13 +38,6 @@ public class AuthenticationService {
 
         if (isLoggedIn(httpSession)) {
             throw new LoginProcessException(ResponseStatus.FAIL_UNNECESSARY_LOGIN);
-        }
-    }
-
-    private void checkNotLogin(HttpSession httpSession) {
-
-        if (!isLoggedIn(httpSession)) {
-            throw new LoginProcessException(ResponseStatus.FAIL_UNNECESSARY_LOGOUT);
         }
     }
 
