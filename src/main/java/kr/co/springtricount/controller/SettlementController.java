@@ -1,16 +1,17 @@
 package kr.co.springtricount.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.service.dto.request.SettlementReqDTO;
 import kr.co.springtricount.service.service.SettlementService;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,19 +21,20 @@ public class SettlementController {
     private final SettlementService settlementService;
 
     @PostMapping
-    public ResponseFormat<Void> createSettlement(@RequestBody @Validated SettlementResDTO create) {
+    public ResponseFormat<Void> createSettlement(@AuthenticationPrincipal UserPrincipal currentMember,
+                                                 @RequestBody @Validated SettlementReqDTO settlementReqDTO) {
 
-        settlementService.createSettlement(create);
+        settlementService.createSettlement(currentMember, settlementReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
 
-    @GetMapping
-    public ResponseFormat<List<SettlementResDTO>> findAllSettlementsByMember(@Login MemberResDTO member) {
+    @GetMapping("/{settlement_id}")
+    public ResponseFormat<SettlementResDTO> findSettlementById(@PathVariable("settlement_id") Long settlementId) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                settlementService.findAllSettlementsByMember(member.identity())
+                settlementService.findSettlementById(settlementId)
         );
     }
 
