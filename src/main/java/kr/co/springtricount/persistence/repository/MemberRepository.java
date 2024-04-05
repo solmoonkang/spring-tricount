@@ -1,6 +1,7 @@
 package kr.co.springtricount.persistence.repository;
 
 import kr.co.springtricount.persistence.entity.Member;
+import kr.co.springtricount.service.dto.MemberDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +15,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findMemberByIdentity(String identity);
 
-    List<Member> findAllByIdentityIn(List<String> identities);
+    List<MemberDTO> findAllByIdentityIn(List<MemberDTO> participants);
 }

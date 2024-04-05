@@ -36,28 +36,28 @@ public class BalanceService {
         Map<MemberDTO, BigDecimal> memberExpenseMap = getMemberExpenseMap(expenses);
         Map<MemberDTO, BigDecimal> memberAmountMap = getMemberAmountMap(participants, memberExpenseMap, averageAmount);
 
-        List<MemberBigDecimal> receiver = getMemberBigDecimals(
+        List<Balance> receiver = getMemberBigDecimals(
                 memberAmountMap,
                 entry -> entry.getValue().compareTo(BigDecimal.ZERO) > 0,
-                Comparator.comparing(MemberBigDecimal::amount));
+                Comparator.comparing(Balance::amount));
 
-        List<MemberBigDecimal> sender = getMemberBigDecimals(
+        List<Balance> sender = getMemberBigDecimals(
                 memberAmountMap,
                 entry -> entry.getValue().compareTo(BigDecimal.ZERO) < 0,
-                Comparator.comparing(MemberBigDecimal::amount).reversed());
+                Comparator.comparing(Balance::amount).reversed());
 
         return getBalances(receiver, sender);
     }
 
-    private List<BalanceDTO> getBalances(List<MemberBigDecimal> receiver, List<MemberBigDecimal> sender) {
+    private List<BalanceDTO> getBalances(List<Balance> receiver, List<Balance> sender) {
 
         int receiverIndex = 0;
         int senderIndex = 0;
 
         List<BalanceDTO> balances = new ArrayList<>();
 
-        MemberBigDecimal receiverMember = receiver.get(0);
-        MemberBigDecimal senderMember = sender.get(0);
+        Balance receiverMember = receiver.get(0);
+        Balance senderMember = sender.get(0);
 
         while (true) {
             BigDecimal receiverAmount = receiverMember.amount().abs();
@@ -92,14 +92,14 @@ public class BalanceService {
         return balances;
     }
 
-    private static List<MemberBigDecimal> getMemberBigDecimals(
+    private static List<Balance> getMemberBigDecimals(
             Map<MemberDTO, BigDecimal> memberAmountMap,
             Predicate<Map.Entry<MemberDTO, BigDecimal>> entryPredicate,
-            Comparator<MemberBigDecimal> comparing) {
+            Comparator<Balance> comparing) {
 
         return memberAmountMap.entrySet().stream()
                 .filter(entryPredicate)
-                .map(entry -> new MemberBigDecimal(entry.getKey(), entry.getValue()))
+                .map(entry -> new Balance(entry.getKey(), entry.getValue()))
                 .sorted(comparing)
                 .toList();
     }
@@ -133,7 +133,7 @@ public class BalanceService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    private record MemberBigDecimal(
+    private record Balance(
             MemberDTO member,
             @With BigDecimal amount
     ) { }
