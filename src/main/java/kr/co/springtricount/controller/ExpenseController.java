@@ -1,13 +1,10 @@
 package kr.co.springtricount.controller;
 
-import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.annotation.Login;
-import kr.co.springtricount.infra.config.SessionConstant;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.ExpenseService;
-import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
-import kr.co.springtricount.service.dto.request.MemberReqDTO;
+import kr.co.springtricount.service.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +19,7 @@ public class ExpenseController {
     @PostMapping("/{settlement_id}")
     public ResponseFormat<Void> createExpense(@PathVariable(name = "settlement_id") Long settlementId,
                                               @RequestBody @Validated ExpenseReqDTO create,
-                                              @Login MemberReqDTO member) {
+                                              @Login MemberDTO member) {
 
         expenseService.createExpense(settlementId, create, member.identity());
 
@@ -31,7 +28,7 @@ public class ExpenseController {
 
     @DeleteMapping("/{expense_id}")
     public ResponseFormat<Void> deleteExpense(@PathVariable(name = "expense_id") Long expenseId,
-                                              @Login MemberReqDTO member) {
+                                              @Login MemberDTO member) {
 
         expenseService.deleteExpenseById(expenseId, member.identity());
 
