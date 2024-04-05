@@ -7,7 +7,7 @@ public record ExpenseResDTO(
         Long id,
         String name,
         Long settlementId,
-        String payerMember,
+        MemberResDTO payerMember,
         BigDecimal amount,
         LocalDate expenseDate
 ) { }
