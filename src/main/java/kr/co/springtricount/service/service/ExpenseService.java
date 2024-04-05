@@ -1,5 +1,6 @@
 package kr.co.springtricount.service.service;
 
+import com.sun.security.auth.UserPrincipal;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Expense;
@@ -10,6 +11,7 @@ import kr.co.springtricount.persistence.repository.ExpenseRepository;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
+import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
 import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,22 +34,17 @@ public class ExpenseService {
     private final MemberSettlementRepository memberSettlementRepository;
 
     @Transactional
-    public void createExpense(Long settlementId, ExpenseReqDTO create, String memberLoginIdentity) {
+    public void createExpense(UserPrincipal currentMember, ExpenseReqDTO expenseReqDTO) {
 
-        final List<MemberSettlement> memberSettlements =
-                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+        isMemberParticipatingInSettlement(expenseReqDTO.settlementId(), currentMember.getName());
 
-        checkMemberParticipationInSettlements(memberSettlements);
-
-        final Settlement settlement = settlementRepository.findById(settlementId)
+        final Settlement settlement = settlementRepository.findById(expenseReqDTO.settlementId())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
 
-        final Member member = memberRepository.findMemberByIdentity(create.memberIdentity())
+        final Member member = memberRepository.findMemberByIdentity(expenseReqDTO.payerMember().identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        isMemberParticipatingInSettlement(settlementId, create.memberIdentity());
-
-        final Expense expense = Expense.toExpenseEntity(create, member, settlement);
+        final Expense expense = Expense.toExpenseEntity(expenseReqDTO, member, settlement);
 
         expenseRepository.save(expense);
     }
@@ -57,15 +54,21 @@ public class ExpenseService {
         final List<Expense> expenses = expenseRepository.findAll();
 
         return expenses.stream()
-                .map(Expense::toExpenseResDTO)
+                .map(expense -> new ExpenseResDTO(
+                        expense.getId(),
+                        expense.getName(),
+                        expense.getSettlement().getId(),
+                        expense.getMember().getIdentity(),
+                        expense.getAmount(),
+                        expense.getExpenseDate()))
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteExpenseById(Long expenseId, String memberLoginIdentity) {
+    public void deleteExpenseById(UserPrincipal currentMember, Long expenseId) {
 
         final List<MemberSettlement> memberSettlements =
-                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+                memberSettlementRepository.findAllByMemberIdentity(currentMember.getName());
 
         checkMemberParticipationInSettlements(memberSettlements);
 
