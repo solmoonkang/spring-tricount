@@ -1,10 +1,10 @@
 package kr.co.springtricount.controller;
 
-import jakarta.servlet.http.HttpSession;
-import kr.co.springtricount.infra.config.SessionConstant;
+import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.SettlementService;
+import kr.co.springtricount.service.dto.request.MemberReqDTO;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
@@ -29,23 +29,20 @@ public class SettlementController {
     }
 
     @GetMapping
-    public ResponseFormat<List<SettlementResDTO>> findAllSettlementsByMember(HttpSession httpSession) {
-
-        final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
+    public ResponseFormat<List<SettlementResDTO>> findAllSettlementsByMember(@Login MemberReqDTO member) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                settlementService.findAllSettlementsByMember(memberLoginIdentity)
+                settlementService.findAllSettlementsByMember(member.identity())
         );
     }
 
     @DeleteMapping("/{settlement_id}")
     public ResponseFormat<Void> deleteSettlementById(@PathVariable(name = "settlement_id") Long settlementId,
-                                                     HttpSession httpSession) {
+                                                     @Login MemberReqDTO member) {
 
-        final String memberLoginIdentity = (String) httpSession.getAttribute(SessionConstant.LOGIN_MEMBER);
 
-        settlementService.deleteSettlementById(settlementId, memberLoginIdentity);
+        settlementService.deleteSettlementById(settlementId, member.identity());
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
