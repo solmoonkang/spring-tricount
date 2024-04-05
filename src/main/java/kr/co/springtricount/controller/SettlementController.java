@@ -1,12 +1,10 @@
 package kr.co.springtricount.controller;
 
 import com.sun.security.auth.UserPrincipal;
-import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
 import kr.co.springtricount.service.service.SettlementService;
-import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,20 +28,21 @@ public class SettlementController {
     }
 
     @GetMapping("/{settlement_id}")
-    public ResponseFormat<SettlementResDTO> findSettlementById(@PathVariable("settlement_id") Long settlementId) {
+    public ResponseFormat<SettlementResDTO> findSettlementById(@AuthenticationPrincipal UserPrincipal currentMember,
+                                                               @PathVariable("settlement_id") Long settlementId) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                settlementService.findSettlementById(settlementId)
+                settlementService.findSettlementById(currentMember, settlementId)
         );
     }
 
     @DeleteMapping("/{settlement_id}")
-    public ResponseFormat<Void> deleteSettlementById(@PathVariable(name = "settlement_id") Long settlementId,
-                                                     @Login MemberResDTO member) {
+    public ResponseFormat<Void> deleteSettlementById(@AuthenticationPrincipal UserPrincipal currentMember,
+                                                     @PathVariable("settlement_id") Long settlementId) {
 
 
-        settlementService.deleteSettlementById(settlementId, member.identity());
+        settlementService.deleteSettlementById(currentMember, settlementId);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
