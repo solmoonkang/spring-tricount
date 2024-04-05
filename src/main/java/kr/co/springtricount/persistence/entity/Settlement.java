@@ -2,7 +2,7 @@ package kr.co.springtricount.persistence.entity;
 
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.BaseEntity;
-import kr.co.springtricount.service.dto.SettlementDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +38,7 @@ public class Settlement extends BaseEntity {
     }
 
 
-    public static Settlement toSettlementEntity(SettlementDTO create) {
+    public static Settlement toSettlementEntity(SettlementResDTO create) {
 
         return Settlement.builder()
                 .name(create.settlementName())

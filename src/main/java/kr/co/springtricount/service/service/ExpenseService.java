@@ -10,7 +10,7 @@ import kr.co.springtricount.persistence.repository.ExpenseRepository;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
-import kr.co.springtricount.service.dto.ExpenseDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +52,7 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
-    public List<ExpenseDTO> findAllExpenses() {
+    public List<ExpenseResDTO> findAllExpenses() {
 
         final List<Expense> expenses = expenseRepository.findAll();
 

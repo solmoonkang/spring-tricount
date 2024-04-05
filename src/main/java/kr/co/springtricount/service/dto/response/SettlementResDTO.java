@@ -1,10 +1,10 @@
-package kr.co.springtricount.service.dto;
+package kr.co.springtricount.service.dto.response;
 
 import java.util.List;
 
-public record SettlementDTO(
+public record SettlementResDTO(
         Long id,
         String settlementName,
         List<MemberResDTO> participants,
-        List<ExpenseDTO> expenses
+        List<ExpenseResDTO> expenses
 ) { }

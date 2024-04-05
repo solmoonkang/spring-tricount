@@ -9,9 +9,9 @@ import kr.co.springtricount.persistence.entity.Settlement;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
-import kr.co.springtricount.service.dto.ExpenseDTO;
-import kr.co.springtricount.service.dto.MemberResDTO;
-import kr.co.springtricount.service.dto.SettlementDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +33,7 @@ public class SettlementService {
     private final ExpenseService expenseService;
 
     @Transactional
-    public void createSettlement(SettlementDTO create) {
+    public void createSettlement(SettlementResDTO create) {
 
         final Settlement settlement = Settlement.toSettlementEntity(create);
 
@@ -48,7 +48,7 @@ public class SettlementService {
         memberSettlementRepository.saveAll(memberSettlements);
     }
 
-    public List<SettlementDTO> findAllSettlementsByMember(String memberLoginIdentity) {
+    public List<SettlementResDTO> findAllSettlementsByMember(String memberLoginIdentity) {
 
         final List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
@@ -60,7 +60,7 @@ public class SettlementService {
         return convertToMemberSettlementResDTOs(allMemberSettlements);
     }
 
-    public SettlementDTO findSettlementById(MemberResDTO memberResDTO, Long settlementId) {
+    public SettlementResDTO findSettlementById(MemberResDTO memberResDTO, Long settlementId) {
 
         final Member member = new Member(memberResDTO.id(), memberResDTO.identity(), memberResDTO.name(), null);
 
@@ -82,7 +82,7 @@ public class SettlementService {
         memberSettlementRepository.deleteAll(memberSettlements);
     }
 
-    private List<SettlementDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
+    private List<SettlementResDTO> convertToMemberSettlementResDTOs(List<MemberSettlement> memberSettlements) {
 
         return memberSettlements.stream()
                 .collect(Collectors.groupingBy(MemberSettlement::getSettlement))
@@ -91,15 +91,15 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private SettlementDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
+    private SettlementResDTO toMemberSettlementResDTO(Map.Entry<Settlement, List<MemberSettlement>> entry) {
 
         final List<MemberResDTO> memberNames = entry.getValue().stream()
                 .map(memberSettlement -> memberSettlement.getMember().getName())
                 .toList();
 
-        final List<ExpenseDTO> expenses = expenseService.findAllExpenses();
+        final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
 
-        return new SettlementDTO(null, entry.getKey().getName(), memberNames, expenses);
+        return new SettlementResDTO(null, entry.getKey().getName(), memberNames, expenses);
     }
 
     private List<MemberSettlement> findAllMemberSettlementsForMember(List<MemberSettlement> initialMemberSettlements) {

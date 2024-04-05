@@ -1,6 +1,6 @@
-package kr.co.springtricount.service.dto;
+package kr.co.springtricount.service.dto.response;
 
-public record BalanceDTO(
+public record BalanceResDTO(
         Long senderMemberNo,
         String senderMemberName,
         Long senderAmount,

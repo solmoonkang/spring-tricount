@@ -3,7 +3,7 @@ package kr.co.springtricount.infra.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.annotation.Login;
-import kr.co.springtricount.service.dto.MemberResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;

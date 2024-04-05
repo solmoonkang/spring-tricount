@@ -1,9 +1,11 @@
-package kr.co.springtricount.service.dto;
+package kr.co.springtricount.service.dto.response;
+
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record ExpenseDTO(
+public record ExpenseResDTO(
         Long id,
         String name,
         Long settlementId,

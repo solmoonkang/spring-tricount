@@ -2,10 +2,10 @@ package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.dto.BalanceDTO;
-import kr.co.springtricount.service.dto.ExpenseDTO;
-import kr.co.springtricount.service.dto.MemberResDTO;
-import kr.co.springtricount.service.dto.SettlementDTO;
+import kr.co.springtricount.service.dto.response.BalanceResDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.With;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class BalanceService {
 
-    public List<BalanceDTO> findBalanceBySettlement(SettlementDTO settlement) {
+    public List<BalanceResDTO> findBalanceBySettlement(SettlementResDTO settlement) {
 
         if (settlement == null) {
             throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
 
-        List<ExpenseDTO> expenses = settlement.expenses();
+        List<ExpenseResDTO> expenses = settlement.expenses();
         List<MemberResDTO> participants = settlement.participants();
 
         BigDecimal totalAmount = getTotalAmount(expenses);
@@ -49,12 +49,12 @@ public class BalanceService {
         return getBalances(receiver, sender);
     }
 
-    private List<BalanceDTO> getBalances(List<Balance> receiver, List<Balance> sender) {
+    private List<BalanceResDTO> getBalances(List<Balance> receiver, List<Balance> sender) {
 
         int receiverIndex = 0;
         int senderIndex = 0;
 
-        List<BalanceDTO> balances = new ArrayList<>();
+        List<BalanceResDTO> balances = new ArrayList<>();
 
         Balance receiverMember = receiver.get(0);
         Balance senderMember = sender.get(0);
@@ -69,7 +69,7 @@ public class BalanceService {
             senderMember = senderMember.withAmount(senderMember.amount().add(minAmount));
 
             balances.add(
-                    new BalanceDTO(
+                    new BalanceResDTO(
                             senderMember.member().id(),
                             senderMember.member().name(),
                             minAmount.abs().longValue(),
@@ -116,19 +116,19 @@ public class BalanceService {
                         ));
     }
 
-    private Map<MemberResDTO, BigDecimal> getMemberExpenseMap(List<ExpenseDTO> expenses) {
+    private Map<MemberResDTO, BigDecimal> getMemberExpenseMap(List<ExpenseResDTO> expenses) {
 
         return expenses.stream()
                 .collect(Collectors.groupingBy(
-                        ExpenseDTO::payerMember,
-                        Collectors.reducing(BigDecimal.ZERO, ExpenseDTO::amount, BigDecimal::add)
+                        ExpenseResDTO::payerMember,
+                        Collectors.reducing(BigDecimal.ZERO, ExpenseResDTO::amount, BigDecimal::add)
                         ));
     }
 
-    private BigDecimal getTotalAmount(List<ExpenseDTO> expenses) {
+    private BigDecimal getTotalAmount(List<ExpenseResDTO> expenses) {
 
         return expenses.stream()
-                .map(ExpenseDTO::amount)
+                .map(ExpenseResDTO::amount)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
     }

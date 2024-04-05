@@ -1,7 +1,7 @@
 package kr.co.springtricount.persistence.repository;
 
 import kr.co.springtricount.persistence.entity.Member;
-import kr.co.springtricount.service.dto.MemberResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

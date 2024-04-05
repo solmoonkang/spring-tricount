@@ -4,7 +4,7 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
-import kr.co.springtricount.service.dto.MemberResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

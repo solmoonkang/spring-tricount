@@ -2,9 +2,9 @@ package kr.co.springtricount.controller;
 
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.dto.request.SignupDTO;
+import kr.co.springtricount.service.dto.SignupDTO;
 import kr.co.springtricount.service.service.MemberService;
-import kr.co.springtricount.service.dto.MemberResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

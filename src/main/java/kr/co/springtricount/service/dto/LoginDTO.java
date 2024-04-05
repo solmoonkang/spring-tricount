@@ -1,4 +1,4 @@
-package kr.co.springtricount.service.dto.request;
+package kr.co.springtricount.service.dto;
 
 import jakarta.validation.constraints.NotNull;
 

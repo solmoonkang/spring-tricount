@@ -5,9 +5,9 @@ import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.service.BalanceService;
 import kr.co.springtricount.service.service.SettlementService;
-import kr.co.springtricount.service.dto.BalanceDTO;
-import kr.co.springtricount.service.dto.MemberResDTO;
-import kr.co.springtricount.service.dto.SettlementDTO;
+import kr.co.springtricount.service.dto.response.BalanceResDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +26,10 @@ public class BalanceController {
     private final SettlementService settlementService;
 
     @GetMapping("/{settlement_id}")
-    public ResponseFormat<List<BalanceDTO>> findBalanceBySettlement(@Login MemberResDTO member,
-                                                                    @PathVariable("settlement_id") Long settlementId) {
+    public ResponseFormat<List<BalanceResDTO>> findBalanceBySettlement(@Login MemberResDTO member,
+                                                                       @PathVariable("settlement_id") Long settlementId) {
 
-        SettlementDTO settlement = settlementService.findSettlementById(member, settlementId);
+        SettlementResDTO settlement = settlementService.findSettlementById(member, settlementId);
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,

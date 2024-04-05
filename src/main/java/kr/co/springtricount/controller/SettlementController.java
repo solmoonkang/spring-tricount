@@ -4,8 +4,8 @@ import kr.co.springtricount.annotation.Login;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.service.SettlementService;
-import kr.co.springtricount.service.dto.MemberResDTO;
-import kr.co.springtricount.service.dto.SettlementDTO;
+import kr.co.springtricount.service.dto.response.MemberResDTO;
+import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class SettlementController {
     private final SettlementService settlementService;
 
     @PostMapping
-    public ResponseFormat<Void> createSettlement(@RequestBody @Validated SettlementDTO create) {
+    public ResponseFormat<Void> createSettlement(@RequestBody @Validated SettlementResDTO create) {
 
         settlementService.createSettlement(create);
 
@@ -28,7 +28,7 @@ public class SettlementController {
     }
 
     @GetMapping
-    public ResponseFormat<List<SettlementDTO>> findAllSettlementsByMember(@Login MemberResDTO member) {
+    public ResponseFormat<List<SettlementResDTO>> findAllSettlementsByMember(@Login MemberResDTO member) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,

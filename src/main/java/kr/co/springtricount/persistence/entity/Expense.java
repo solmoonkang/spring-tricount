@@ -2,7 +2,7 @@ package kr.co.springtricount.persistence.entity;
 
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.BaseEntity;
-import kr.co.springtricount.service.dto.ExpenseDTO;
+import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,7 +52,7 @@ public class Expense extends BaseEntity {
         this.expenseDate = expenseDate;
     }
 
-    public static Expense toExpenseEntity(ExpenseDTO create,
+    public static Expense toExpenseEntity(ExpenseResDTO create,
                                           Member member,
                                           Settlement settlement) {
 
