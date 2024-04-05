@@ -4,9 +4,8 @@ import jakarta.servlet.http.HttpSession;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.MemberService;
-import kr.co.springtricount.service.dto.request.LoginReqDTO;
-import kr.co.springtricount.service.dto.request.MemberReqDTO;
-import kr.co.springtricount.service.dto.response.MemberResDTO;
+import kr.co.springtricount.service.dto.request.LoginDTO;
+import kr.co.springtricount.service.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseFormat<Void> createMember(@Validated @RequestBody MemberReqDTO create) {
+    public ResponseFormat<Void> createMember(@Validated @RequestBody MemberDTO create) {
 
         memberService.createMember(create);
 
@@ -31,7 +30,7 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseFormat<List<MemberResDTO>> findAllMember() {
+    public ResponseFormat<List<MemberDTO>> findAllMember() {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
@@ -40,7 +39,7 @@ public class MemberController {
     }
 
     @GetMapping("/{identity}")
-    public ResponseFormat<MemberResDTO> findMemberByIdentity(@PathVariable String identity) {
+    public ResponseFormat<MemberDTO> findMemberByIdentity(@PathVariable String identity) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
@@ -50,11 +49,11 @@ public class MemberController {
 
     @DeleteMapping
     public ResponseFormat<Void> deleteMember(HttpSession httpSession,
-                                             @RequestBody @Validated LoginReqDTO loginReqDTO) {
+                                             @RequestBody @Validated LoginDTO loginDTO) {
 
         String loggedInUserIdentity = (String) httpSession.getAttribute(LOGIN_MEMBER);
 
-        memberService.deleteMember(loggedInUserIdentity, loginReqDTO);
+        memberService.deleteMember(loggedInUserIdentity, loginDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
