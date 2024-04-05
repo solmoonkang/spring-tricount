@@ -50,12 +50,15 @@ public class SettlementService {
         memberSettlementRepository.save(memberSettlement);
     }
 
-    public SettlementResDTO findSettlementById(Long settlementId) {
+    public SettlementResDTO findSettlementById(UserPrincipal currentMember, Long settlementId) {
+
+        checkMemberParticipation(settlementId, currentMember.getName());
 
         final Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
 
-        final List<MemberSettlement> memberSettlement = memberSettlementRepository.findAllBySettlementId(settlementId);
+        final List<MemberSettlement> memberSettlement =
+                memberSettlementRepository.findAllBySettlementId(settlementId);
 
         final List<MemberResDTO> participants = toMemberResDTOFromMemberSettlement(memberSettlement);
 
@@ -65,12 +68,12 @@ public class SettlementService {
     }
 
     @Transactional
-    public void deleteSettlementById(Long settlementId, String memberLoginIdentity) {
+    public void deleteSettlementById(UserPrincipal currentMember, Long settlementId) {
 
-        final List<MemberSettlement> memberSettlements =
-                memberSettlementRepository.findAllByMemberIdentity(memberLoginIdentity);
+        checkMemberParticipation(settlementId, currentMember.getName());
 
-        checkMemberParticipation(settlementId, memberLoginIdentity);
+        List<MemberSettlement> memberSettlements =
+                memberSettlementRepository.findAllBySettlementId(settlementId);
 
         settlementRepository.deleteById(settlementId);
 
@@ -87,10 +90,10 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private void checkMemberParticipation(Long settlementId, String memberLoginIdentity) {
+    private void checkMemberParticipation(Long settlementId, String currentMember) {
 
-        if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberLoginIdentity)) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+        if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, currentMember)) {
+            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
     }
 }
