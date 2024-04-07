@@ -13,7 +13,10 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "tbl_settlements")
+@Table(
+        name = "tbl_settlements",
+        indexes = @Index(name = "idx_settlement_name", columnList = "name")
+)
 @AttributeOverride(
         name = "id",
         column = @Column(name = "settlement_id", length = 4)
