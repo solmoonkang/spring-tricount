@@ -9,7 +9,13 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "tbl_member_settlements")
+@Table(
+        name = "tbl_member_settlements",
+        indexes = {
+                @Index(name = "idx_member_id", columnList = "member_id"),
+                @Index(name = "idx_settlement_id", columnList = "settlement_id")
+        }
+)
 @AttributeOverride(
         name = "id",
         column = @Column(name = "member_settlement_id", length = 4)
