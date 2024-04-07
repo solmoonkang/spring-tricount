@@ -8,6 +8,7 @@ import kr.co.springtricount.persistence.entity.Settlement;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
+import kr.co.springtricount.persistence.repository.search.SettlementSearchRepository;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
 import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
@@ -33,6 +34,8 @@ public class SettlementService {
 
     private final ExpenseService expenseService;
 
+    private final SettlementSearchRepository settlementSearchRepository;
+
     @Transactional
     public void createSettlement(User currentMember, SettlementReqDTO settlementReqDTO) {
 
@@ -53,8 +56,10 @@ public class SettlementService {
 
         checkMemberParticipation(settlementId, currentMember.getUsername());
 
-        final Settlement settlement = settlementRepository.findById(settlementId)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND));
+        List<Settlement> settlements =
+                settlementSearchRepository.findSettlementDetailsById(settlementId);
+
+        checkSettlementIsEmpty(settlements);
 
         final List<MemberSettlement> memberSettlement =
                 memberSettlementRepository.findAllBySettlementId(settlementId);
@@ -63,7 +68,12 @@ public class SettlementService {
 
         final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
 
-        return new SettlementResDTO(settlement.getId(), settlement.getName(), participants, expenses);
+        return new SettlementResDTO(
+                settlements.get(0).getId(),
+                settlements.get(0).getName(), 
+                participants,
+                expenses
+        );
     }
 
     @Transactional
@@ -92,6 +102,13 @@ public class SettlementService {
     private void checkMemberParticipation(Long settlementId, String currentMember) {
 
         if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, currentMember)) {
+            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
+        }
+    }
+
+    private void checkSettlementIsEmpty(List<Settlement> settlements) {
+
+        if (settlements.isEmpty()) {
             throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
     }
