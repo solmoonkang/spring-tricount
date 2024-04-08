@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  web:
+    container_name: web
+    image: ssolmoon/spring-tricount-docker:latest
+    expose:
+      - "9092"
+    ports:
+      - "9191:9092"
+    build:
+      context: .
+      dockerfile: Dockerfile
