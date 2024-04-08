@@ -9,6 +9,7 @@ spring:
   datasource:
     url: jdbc:h2:tcp://localhost/~/tricount
     username: sa
+    password:
 
   jpa:
     database: h2
@@ -19,8 +20,3 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
-
-  logging:
-    level:
-      org.hibernate.type: trace
-      org.hibernate.stat: debug
