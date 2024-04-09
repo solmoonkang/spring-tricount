@@ -25,7 +25,8 @@ public class SettlementSearchRepository {
     public List<Settlement> findSettlementDetailsById(Long settlementId) {
 
         return jpaQueryFactory.selectFrom(settlement)
-                .leftJoin(memberSettlement.settlement, settlement).fetchJoin()
+                .leftJoin(memberSettlement)
+                .on(settlement.id.eq(memberSettlement.settlement.id))
                 .leftJoin(memberSettlement.member, member)
                 .where(settlement.id.eq(settlementId))
                 .fetch();
