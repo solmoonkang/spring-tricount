@@ -56,8 +56,13 @@ public class BalanceService {
 
         List<BalanceResDTO> balances = new ArrayList<>();
 
-        Balance receiverMember = receiver.get(0);
-        Balance senderMember = sender.get(0);
+        if (receiver.isEmpty() || sender.isEmpty()) {
+
+            return balances;
+        }
+
+        Balance receiverMember = receiver.get(receiverIndex);
+        Balance senderMember = sender.get(senderIndex);
 
         while (true) {
             BigDecimal receiverAmount = receiverMember.amount().abs();
