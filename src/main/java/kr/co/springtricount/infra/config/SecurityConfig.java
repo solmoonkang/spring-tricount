@@ -20,20 +20,22 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf().disable();
+        httpSecurity
+                .csrf().disable();
 
-        httpSecurity.authorizeHttpRequests()
+        httpSecurity
+                .authorizeHttpRequests()
                 .requestMatchers("/api/v1/members/signup").permitAll()
                 .requestMatchers("/api/v1/**").authenticated();
 
-        httpSecurity.formLogin()
-                .loginProcessingUrl("/login")
+        httpSecurity
+                .formLogin().permitAll()
                 .usernameParameter("identity")
-                .passwordParameter("password")
-                .defaultSuccessUrl("/api/v1/members", true);
+                .defaultSuccessUrl("/api/v1")
+                .failureUrl("/api/v1/fail");
 
-        httpSecurity.logout()
-                .logoutUrl("/logout")
+        httpSecurity
+                .logout()
                 .logoutSuccessUrl("/login");
 
         httpSecurity.userDetailsService(memberDetailService);
