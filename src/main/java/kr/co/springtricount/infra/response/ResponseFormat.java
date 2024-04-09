@@ -23,9 +23,20 @@ public class ResponseFormat<T> {
     private T data;
 
     public static <T> ResponseFormat<T> successMessage(ResponseStatus responseStatus) {
+
         return ResponseFormat.<T>builder()
                 .status(responseStatus.getStatus())
                 .message(responseStatus.getMessage())
+                .data(null)
+                .build();
+    }
+
+    public static <T> ResponseFormat<T> successMessage(ResponseStatus responseStatus,
+                                                       String message) {
+
+        return ResponseFormat.<T>builder()
+                .status(responseStatus.getStatus())
+                .message(message)
                 .data(null)
                 .build();
     }
