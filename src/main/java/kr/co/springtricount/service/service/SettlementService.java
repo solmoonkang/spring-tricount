@@ -54,12 +54,12 @@ public class SettlementService {
 
     public SettlementResDTO findSettlementById(User currentMember, Long settlementId) {
 
-        checkMemberParticipation(settlementId, currentMember.getUsername());
+        validateMemberParticipation(settlementId, currentMember.getUsername());
 
         List<Settlement> settlements =
                 settlementSearchRepository.findSettlementDetailsById(settlementId);
 
-        checkSettlementIsEmpty(settlements);
+        validateSettlementNotEmpty(settlements);
 
         final List<MemberSettlement> memberSettlement =
                 memberSettlementRepository.findAllBySettlementId(settlementId);
@@ -79,7 +79,7 @@ public class SettlementService {
     @Transactional
     public void deleteSettlementById(User currentMember, Long settlementId) {
 
-        checkMemberParticipation(settlementId, currentMember.getUsername());
+        validateMemberParticipation(settlementId, currentMember.getUsername());
 
         List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllBySettlementId(settlementId);
@@ -99,14 +99,14 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private void checkMemberParticipation(Long settlementId, String currentMember) {
+    private void validateMemberParticipation(Long settlementId, String currentMember) {
 
         if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, currentMember)) {
             throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
     }
 
-    private void checkSettlementIsEmpty(List<Settlement> settlements) {
+    private void validateSettlementNotEmpty(List<Settlement> settlements) {
 
         if (settlements.isEmpty()) {
             throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
