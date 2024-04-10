@@ -24,11 +24,13 @@ public class SettlementSearchRepository {
 
     public List<Settlement> findSettlementDetailsById(Long settlementId) {
 
-        return jpaQueryFactory.selectFrom(settlement)
-                .leftJoin(memberSettlement)
-                .on(settlement.id.eq(memberSettlement.settlement.id))
-                .leftJoin(memberSettlement.member, member)
-                .where(settlement.id.eq(settlementId))
+        return jpaQueryFactory
+                .select(memberSettlement.settlement)
+                .from(memberSettlement)
+                .join(memberSettlement.settlement, settlement)
+                .join(memberSettlement.member, member)
+                .where(memberSettlement.settlement.id.eq(settlementId))
+                .distinct()
                 .fetch();
     }
 }
