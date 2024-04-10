@@ -1,4 +1,4 @@
-package kr.co.springtricount.persistence;
+package kr.co.springtricount.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
