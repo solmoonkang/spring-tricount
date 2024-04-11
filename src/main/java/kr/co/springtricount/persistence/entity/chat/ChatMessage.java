@@ -29,22 +29,17 @@ public class ChatMessage extends BaseEntity {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "message_type")
-    private MessageType messageType;
-
     @Column(name = "is_read")
-    private boolean isRead;
+    private boolean isRead = false;
 
     @Builder
     public ChatMessage(Member member,
                        ChatRoom chatRoom,
                        String message,
-                       MessageType messageType,
                        boolean isRead) {
         this.member = member;
         this.chatRoom = chatRoom;
         this.message = message;
-        this.messageType = messageType;
         this.isRead = isRead;
     }
 }
