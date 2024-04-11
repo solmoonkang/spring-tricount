@@ -1,14 +1,14 @@
 package kr.co.springtricount.persistence.entity.chat;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import kr.co.springtricount.persistence.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,8 +23,13 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @OneToMany(mappedBy = "chatRoom")
+    private List<Chat> chats = new ArrayList<>();
+
     @Builder
-    public ChatRoom(String name) {
+    public ChatRoom(String name,
+                    List<Chat> chats) {
         this.name = name;
+        this.chats = chats;
     }
 }
