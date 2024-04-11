@@ -19,9 +19,11 @@ import lombok.NoArgsConstructor;
 public class Chat extends BaseEntity {
 
     @ManyToOne
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne
+    @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
     @Column(name = "message")
@@ -30,14 +32,19 @@ public class Chat extends BaseEntity {
     @Column(name = "message_type")
     private MessageType messageType;
 
+    @Column(name = "is_read")
+    private boolean isRead;
+
     @Builder
     public Chat(Member member,
                 ChatRoom chatRoom,
                 String message,
-                MessageType messageType) {
+                MessageType messageType,
+                boolean isRead) {
         this.member = member;
         this.chatRoom = chatRoom;
         this.message = message;
         this.messageType = messageType;
+        this.isRead = isRead;
     }
 }
