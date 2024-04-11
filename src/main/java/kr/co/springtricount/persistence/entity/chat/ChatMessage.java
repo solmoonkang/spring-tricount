@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
         column = @Column(name = "chat_id", length = 4)
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Chat extends BaseEntity {
+public class ChatMessage extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -36,11 +36,11 @@ public class Chat extends BaseEntity {
     private boolean isRead;
 
     @Builder
-    public Chat(Member member,
-                ChatRoom chatRoom,
-                String message,
-                MessageType messageType,
-                boolean isRead) {
+    public ChatMessage(Member member,
+                       ChatRoom chatRoom,
+                       String message,
+                       MessageType messageType,
+                       boolean isRead) {
         this.member = member;
         this.chatRoom = chatRoom;
         this.message = message;
