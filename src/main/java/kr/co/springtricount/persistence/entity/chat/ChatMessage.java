@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "tbl_chats")
+@Table(name = "tbl_chat_messages")
 @AttributeOverride(
         name = "id",
-        column = @Column(name = "chat_id", length = 4)
+        column = @Column(name = "chat_message_id", length = 4)
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessage extends BaseEntity {
