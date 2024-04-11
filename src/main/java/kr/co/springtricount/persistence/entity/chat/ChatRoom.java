@@ -24,6 +24,9 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "message_type")
+    private MessageType messageType;
+
     @OneToMany(
             fetch = FetchType.LAZY,
             cascade = CascadeType.REMOVE
@@ -32,8 +35,10 @@ public class ChatRoom extends BaseEntity {
 
     @Builder
     public ChatRoom(String name,
+                    MessageType messageType,
                     List<ChatMessage> chatMessages) {
         this.name = name;
+        this.messageType = messageType;
         this.chatMessages = chatMessages;
     }
 }
