@@ -2,9 +2,9 @@ package kr.co.springtricount.persistence.repository.search;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.springtricount.persistence.entity.QExpense;
-import kr.co.springtricount.persistence.entity.QMember;
-import kr.co.springtricount.persistence.entity.QMemberSettlement;
+import kr.co.springtricount.persistence.entity.settlement.QExpense;
+import kr.co.springtricount.persistence.entity.member.QMember;
+import kr.co.springtricount.persistence.entity.member.QMemberSettlement;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.service.BalanceService;
 import lombok.RequiredArgsConstructor;

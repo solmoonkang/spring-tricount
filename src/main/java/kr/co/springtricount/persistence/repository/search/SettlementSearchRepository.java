@@ -1,9 +1,9 @@
 package kr.co.springtricount.persistence.repository.search;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.springtricount.persistence.entity.QMember;
-import kr.co.springtricount.persistence.entity.QMemberSettlement;
-import kr.co.springtricount.persistence.entity.QSettlement;
+import kr.co.springtricount.persistence.entity.member.QMember;
+import kr.co.springtricount.persistence.entity.member.QMemberSettlement;
+import kr.co.springtricount.persistence.entity.settlement.QSettlement;
 import kr.co.springtricount.persistence.entity.settlement.Settlement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
