@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,16 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private List<Chat> chats = new ArrayList<>();
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE
+    )
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     @Builder
     public ChatRoom(String name,
-                    List<Chat> chats) {
+                    List<ChatMessage> chatMessages) {
         this.name = name;
-        this.chats = chats;
+        this.chatMessages = chatMessages;
     }
 }
