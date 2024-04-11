@@ -6,6 +6,6 @@ public record ChatMessageResDTO(
 
         MessageType messageType,
         Long chatRoomId,
-        Long senderId,
+        Long senderName,
         String message
 ) { }
