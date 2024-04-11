@@ -3,9 +3,13 @@ package kr.co.springtricount.service.service;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
 import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
+import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,5 +26,14 @@ public class ChatService {
                 .build();
 
         chatRoomRepository.save(chatRoom);
+    }
+
+    public List<ChatRoomResDTO> findAllChatRooms() {
+
+        List<ChatRoom> findChatRoom = chatRoomRepository.findAll();
+
+        return findChatRoom.stream()
+                .map(chatRoom -> new ChatRoomResDTO(chatRoom.getName()))
+                .collect(Collectors.toList());
     }
 }
