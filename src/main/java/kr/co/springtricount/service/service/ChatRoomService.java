@@ -2,6 +2,7 @@ package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
+import kr.co.springtricount.persistence.entity.chat.MessageType;
 import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
@@ -24,6 +25,7 @@ public class ChatRoomService {
 
         final ChatRoom chatRoom = ChatRoom.builder()
                 .name(chatRoomReqDTO.name())
+                .messageType(MessageType.ENTER)
                 .build();
 
         chatRoomRepository.save(chatRoom);
