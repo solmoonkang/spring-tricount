@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public enum MessageType {
 
-    ENTER, TALK
+    ENTER, LEAVE
 }
