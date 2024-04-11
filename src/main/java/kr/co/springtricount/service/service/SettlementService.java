@@ -2,9 +2,9 @@ package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.persistence.entity.Member;
-import kr.co.springtricount.persistence.entity.MemberSettlement;
-import kr.co.springtricount.persistence.entity.Settlement;
+import kr.co.springtricount.persistence.entity.member.Member;
+import kr.co.springtricount.persistence.entity.member.MemberSettlement;
+import kr.co.springtricount.persistence.entity.settlement.Settlement;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;

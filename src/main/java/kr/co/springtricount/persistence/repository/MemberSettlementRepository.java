@@ -1,6 +1,6 @@
 package kr.co.springtricount.persistence.repository;
 
-import kr.co.springtricount.persistence.entity.MemberSettlement;
+import kr.co.springtricount.persistence.entity.member.MemberSettlement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

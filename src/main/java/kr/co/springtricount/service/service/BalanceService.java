@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class BalanceService {
 
+    // TODO: N+1 문제 해결 및 BalanceSearchRepository 메서드 수정 필요
     public List<BalanceResDTO> findBalanceBySettlement(SettlementResDTO settlement) {
 
         if (settlement == null) {
@@ -138,7 +139,7 @@ public class BalanceService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    private record Balance(
+    public record Balance(
             MemberResDTO member,
             @With BigDecimal amount
     ) { }

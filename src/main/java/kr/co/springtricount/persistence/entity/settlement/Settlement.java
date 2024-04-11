@@ -1,6 +1,7 @@
-package kr.co.springtricount.persistence.entity;
+package kr.co.springtricount.persistence.entity.settlement;
 
 import jakarta.persistence.*;
+import kr.co.springtricount.persistence.entity.BaseEntity;
 import kr.co.springtricount.service.dto.request.SettlementReqDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
