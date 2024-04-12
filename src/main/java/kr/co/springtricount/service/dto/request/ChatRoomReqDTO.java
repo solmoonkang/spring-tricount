@@ -1,6 +1,8 @@
 package kr.co.springtricount.service.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ChatRoomReqDTO(
         String chatRoomName,
-        String receiverIdentity
+        @NotBlank String receiverIdentity
 ) { }
