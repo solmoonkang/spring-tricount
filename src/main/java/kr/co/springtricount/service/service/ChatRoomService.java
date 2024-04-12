@@ -52,6 +52,18 @@ public class ChatRoomService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteChatRoom(User currentMember, Long chatRoomId) {
+
+        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+
+        chatRoomRepository.findAllByMember(findMember).stream()
+                .filter(chatRoom -> chatRoom.getId().equals(chatRoomId))
+                .findFirst()
+                .ifPresent(chatRoomRepository::delete);
+    }
+
     private String determineChatRoomName(ChatRoomReqDTO chatRoomReqDTO, Member receiver) {
 
         if (!chatRoomReqDTO.chatRoomName().isBlank()) {
