@@ -10,6 +10,7 @@ import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
 import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
+import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -65,6 +66,18 @@ public class ChatService {
 
         return chatRooms.stream()
                 .map(chatRoom -> new ChatRoomResDTO(chatRoom.getName()))
+                .toList();
+    }
+
+    public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(Long chatRoomId) {
+
+        final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NotFoundException("해당 채팅방은 존재하지 않습니다."));
+
+        final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
+
+        return chatMessages.stream()
+                .map(chatMessage -> new ChatMessageResDTO(findChatRoom.getId(), findChatRoom.getMember().getName(), chatMessage.getMessage()))
                 .toList();
     }
 
