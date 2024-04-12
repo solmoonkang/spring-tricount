@@ -31,11 +31,9 @@ public class ChatMessageService {
     @Transactional
     public void createChatMessage(User currentMember, Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
 
-        final Member sender = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member sender = checkCurrentMemberByIdentity(currentMember.getUsername());
 
-        final Member receiver = memberRepository.findMemberByIdentity(chatMessageReqDTO.receiverIdentity())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member receiver = checkCurrentMemberByIdentity(chatMessageReqDTO.receiverIdentity());
 
         final ChatRoom chatRoom = createOrGetChatRoom(chatRoomId, receiver);
 
@@ -46,8 +44,7 @@ public class ChatMessageService {
 
     public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(User currentMember, Long chatRoomId) {
 
-        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getPassword())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member findMember = checkCurrentMemberByIdentity(currentMember.getUsername());
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
@@ -72,5 +69,11 @@ public class ChatMessageService {
     private ChatRoom createChatRoom(Member receiver) {
 
         return chatRoomRepository.save(ChatRoom.toChatRoomEntity(receiver, receiver.getName()));
+    }
+
+    private Member checkCurrentMemberByIdentity(String memberIdentity) {
+
+        return memberRepository.findMemberByIdentity(memberIdentity)
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
     }
 }
