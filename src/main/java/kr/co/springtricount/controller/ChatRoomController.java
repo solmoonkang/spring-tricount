@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/v1/chat_rooms")
 public class ChatRoomController {
 
-    private ChatRoomService chatRoomService;
+    private final ChatRoomService chatRoomService;
 
     @PostMapping
     public ResponseFormat<Void> createChatRoom(@RequestBody @Validated ChatRoomReqDTO chatRoomReqDTO) {
@@ -36,6 +36,17 @@ public class ChatRoomController {
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
                 chatRoomService.findAllChatRoomsByMemberIdentity(currentMember)
+        );
+    }
+
+    @DeleteMapping("/{chat_room_id}")
+    public ResponseFormat<Void> deleteChatRoom(@AuthenticationPrincipal User currentMember,
+                                               @PathVariable("chat_room_id") Long chatRoomId) {
+
+        chatRoomService.deleteChatRoom(currentMember, chatRoomId);
+
+        return ResponseFormat.successMessage(
+                ResponseStatus.SUCCESS_EXECUTE
         );
     }
 }
