@@ -1,7 +1,6 @@
 package kr.co.springtricount.infra.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.springtricount.persistence.entity.chat.MessageType;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,10 +63,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         }
 
         Set<WebSocketSession> chatRoomSession = chatRoomSessionMap.get(chatRoomId);
-
-        if (chatMessageResDTO.messageType().equals(MessageType.ENTER)) {
-            chatRoomSession.add(session);
-        }
 
         if (chatRoomSession.size() >= 3) {
             removeClosedSession(chatRoomSession);
