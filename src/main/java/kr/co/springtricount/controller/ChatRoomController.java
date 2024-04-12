@@ -3,13 +3,15 @@ package kr.co.springtricount.controller;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
+import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import kr.co.springtricount.service.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +27,15 @@ public class ChatRoomController {
 
         return ResponseFormat.successMessage(
                 ResponseStatus.SUCCESS_CREATED
+        );
+    }
+
+    @GetMapping
+    public ResponseFormat<List<ChatRoomResDTO>> findAllChatRoomsByMemberIdentity(@AuthenticationPrincipal User currentMember) {
+
+        return ResponseFormat.successMessageWithData(
+                ResponseStatus.SUCCESS_EXECUTE,
+                chatRoomService.findAllChatRoomsByMemberIdentity(currentMember)
         );
     }
 }
