@@ -25,9 +25,7 @@ public class ChatRoomController {
 
         chatRoomService.createChatRoom(chatRoomReqDTO);
 
-        return ResponseFormat.successMessage(
-                ResponseStatus.SUCCESS_CREATED
-        );
+        return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
 
     @GetMapping
@@ -45,8 +43,6 @@ public class ChatRoomController {
 
         chatRoomService.deleteChatRoom(currentMember, chatRoomId);
 
-        return ResponseFormat.successMessage(
-                ResponseStatus.SUCCESS_EXECUTE
-        );
+        return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
 }
