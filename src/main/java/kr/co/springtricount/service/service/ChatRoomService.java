@@ -27,8 +27,7 @@ public class ChatRoomService {
     @Transactional
     public void createChatRoom(ChatRoomReqDTO chatRoomReqDTO) {
 
-        final Member receiver = memberRepository.findMemberByIdentity(chatRoomReqDTO.receiverIdentity())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member receiver = checkCurrentMemberByIdentity(chatRoomReqDTO.receiverIdentity());
 
         final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(
                 receiver,
@@ -40,8 +39,7 @@ public class ChatRoomService {
 
     public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity(User currentMember) {
 
-        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member findMember = checkCurrentMemberByIdentity(currentMember.getUsername());
 
         final List<ChatRoom> chatRooms = chatRoomRepository.findAllByMember(findMember);
 
@@ -55,8 +53,7 @@ public class ChatRoomService {
     @Transactional
     public void deleteChatRoom(User currentMember, Long chatRoomId) {
 
-        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member findMember = checkCurrentMemberByIdentity(currentMember.getUsername());
 
         chatRoomRepository.findAllByMember(findMember).stream()
                 .filter(chatRoom -> chatRoom.getId().equals(chatRoomId))
@@ -71,5 +68,11 @@ public class ChatRoomService {
         }
 
         return receiver.getName();
+    }
+
+    private Member checkCurrentMemberByIdentity(String memberIdentity) {
+
+        return memberRepository.findMemberByIdentity(memberIdentity)
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
     }
 }
