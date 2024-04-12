@@ -24,9 +24,6 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "message_type")
-    private MessageType messageType;
-
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
@@ -39,12 +36,19 @@ public class ChatRoom extends BaseEntity {
 
     @Builder
     public ChatRoom(String name,
-                    MessageType messageType,
                     Member member,
                     List<ChatMessage> chatMessages) {
         this.name = name;
-        this.messageType = messageType;
         this.member = member;
         this.chatMessages = chatMessages;
+    }
+
+    public static ChatRoom toChatRoomEntity(Member receiver,
+                                            String chatRoomName) {
+
+        return ChatRoom.builder()
+                .name(chatRoomName)
+                .member(receiver)
+                .build();
     }
 }
