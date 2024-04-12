@@ -9,9 +9,7 @@ import kr.co.springtricount.persistence.repository.ChatMessageRepository;
 import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
-import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
-import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -22,27 +20,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ChatService {
+public class ChatMessageService {
 
     private final ChatRoomRepository chatRoomRepository;
 
     private final ChatMessageRepository chatMessageRepository;
 
     private final MemberRepository memberRepository;
-
-    @Transactional
-    public void createChatRoom(ChatRoomReqDTO chatRoomReqDTO) {
-
-        final Member receiver = memberRepository.findMemberByIdentity(chatRoomReqDTO.receiverIdentity())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
-
-        final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(
-                receiver,
-                determineChatRoomName(chatRoomReqDTO, receiver)
-        );
-
-        chatRoomRepository.save(chatRoom);
-    }
 
     @Transactional
     public void createChatMessage(User currentMember, Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
@@ -60,24 +44,22 @@ public class ChatService {
         chatMessageRepository.save(chatMessage);
     }
 
-    public List<ChatRoomResDTO> findAllChatRooms() {
+    public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(User currentMember, Long chatRoomId) {
 
-        final List<ChatRoom> chatRooms = chatRoomRepository.findAll();
-
-        return chatRooms.stream()
-                .map(chatRoom -> new ChatRoomResDTO(chatRoom.getName()))
-                .toList();
-    }
-
-    public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(Long chatRoomId) {
+        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getPassword())
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException("해당 채팅방은 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
 
         final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
 
         return chatMessages.stream()
-                .map(chatMessage -> new ChatMessageResDTO(findChatRoom.getId(), findChatRoom.getMember().getName(), chatMessage.getMessage()))
+                .map(chatMessage -> new ChatMessageResDTO(
+                        findChatRoom.getId(),
+                        findMember.getName(),
+                        chatMessage.getMessage()
+                ))
                 .toList();
     }
 
@@ -90,14 +72,5 @@ public class ChatService {
     private ChatRoom createChatRoom(Member receiver) {
 
         return chatRoomRepository.save(ChatRoom.toChatRoomEntity(receiver, receiver.getName()));
-    }
-
-    private String determineChatRoomName(ChatRoomReqDTO chatRoomReqDTO, Member receiver) {
-
-        if (!chatRoomReqDTO.chatRoomName().isBlank()) {
-            return chatRoomReqDTO.chatRoomName();
-        }
-
-        return receiver.getName();
     }
 }
