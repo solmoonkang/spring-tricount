@@ -20,7 +20,7 @@ public class ChatMessage extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member sender;
 
     @ManyToOne
     @JoinColumn(name = "chat_room_id")
@@ -29,17 +29,12 @@ public class ChatMessage extends BaseEntity {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "is_read")
-    private boolean isRead = false;
-
     @Builder
-    public ChatMessage(Member member,
+    public ChatMessage(Member sender,
                        ChatRoom chatRoom,
-                       String message,
-                       boolean isRead) {
-        this.member = member;
+                       String message) {
+        this.sender = sender;
         this.chatRoom = chatRoom;
         this.message = message;
-        this.isRead = isRead;
     }
 }
