@@ -33,9 +33,12 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     @Transactional
-    public void createChatRoom(ChatRoomReqDTO chatRoomReqDTO) {
+    public void createChatRoom(User currentMember, ChatRoomReqDTO chatRoomReqDTO) {
 
-        final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(chatRoomReqDTO.name());
+        final Member member = memberRepository.findMemberByIdentity(currentMember.getUsername())
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+
+        final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(chatRoomReqDTO.name(), member);
 
         chatRoomRepository.save(chatRoom);
     }
@@ -56,7 +59,7 @@ public class ChatRoomService {
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final List<ChatRoom> chatRooms = chatRoomRepository.findAllByMember(findMember);
+        final List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomByMember(findMember);
 
         return chatRooms.stream()
                 .map(this::convertToChatRoomResDTO)
@@ -69,9 +72,7 @@ public class ChatRoomService {
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        chatRoomRepository.findAllByMember(findMember).stream()
-                .filter(chatRoom -> chatRoom.getId().equals(chatRoomId))
-                .findFirst()
+        chatRoomRepository.findByIdAndMember(chatRoomId, findMember)
                 .ifPresent(chatRoomRepository::delete);
     }
 
