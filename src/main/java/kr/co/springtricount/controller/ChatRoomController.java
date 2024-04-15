@@ -21,11 +21,22 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping
-    public ResponseFormat<Void> createChatRoom(@RequestBody @Validated ChatRoomReqDTO chatRoomReqDTO) {
+    public ResponseFormat<Void> createChatRoom(@AuthenticationPrincipal User currentMember,
+                                               @RequestBody @Validated ChatRoomReqDTO chatRoomReqDTO) {
 
-        chatRoomService.createChatRoom(chatRoomReqDTO);
+        chatRoomService.createChatRoom(currentMember, chatRoomReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
+    }
+
+    @GetMapping("/{chat_room_id}")
+    public ResponseFormat<ChatRoomResDTO> enterChatRoom(@AuthenticationPrincipal User currentMember,
+                                                        @PathVariable("chat_room_id") Long chatRoomId) {
+
+        return ResponseFormat.successMessageWithData(
+                ResponseStatus.SUCCESS_EXECUTE,
+                chatRoomService.enterChatRoom(currentMember, chatRoomId)
+        );
     }
 
     @GetMapping
