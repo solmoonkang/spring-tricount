@@ -52,17 +52,15 @@ public class ChatRoomService {
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
 
-        boolean isCurrentSender = findChatRoom.getSender().getIdentity().equals(currentMember.getUsername());
-        boolean isCurrentReceiver = findChatRoom.getReceiver().getIdentity().equals(currentMember.getUsername());
+        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        if (!(isCurrentSender || isCurrentReceiver)) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
-        }
+        checkAccessPermission(findMember, findChatRoom);
 
         List<ChatMessageResDTO> messages =
                 chatMessageService.findAllChatMessagesByChatRoomId(currentMember, chatRoomId);
 
-        return findChatRoom.toChatRoomResDTO(findChatRoom, messages);
+        return findChatRoom.toChatRoomResDTO(messages);
     }
 
     public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity(User currentMember) {
@@ -80,6 +78,8 @@ public class ChatRoomService {
     @Transactional
     public void deleteChatRoom(User currentMember, Long chatRoomId) {
 
+        // TODO: 해당 사용자 둘 중 한 명이라도 채팅 방을 삭제하면 해당 사용자를 기준으로 생성된 채팅방은 제거되도록 구현
+
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
@@ -91,12 +91,7 @@ public class ChatRoomService {
 
         final ChatMessageResDTO lastMessageResDTO = findLastMessage(chatRoom.getId());
 
-        return new ChatRoomResDTO(
-                chatRoom.getName(),
-                chatRoom.getSender().getName(),
-                chatRoom.getReceiver().getName(),
-                Collections.singletonList(lastMessageResDTO)
-        );
+        return chatRoom.toChatRoomResDTO(Collections.singletonList(lastMessageResDTO));
     }
 
     private ChatMessageResDTO findLastMessage(Long chatRoomId) {
@@ -109,5 +104,15 @@ public class ChatRoomService {
         }
 
         return null;
+    }
+
+    private void checkAccessPermission(Member member, ChatRoom chatRoom) {
+
+        boolean hasAccess = chatRoom.getSender().getIdentity().equals(member.getIdentity()) ||
+                            chatRoom.getReceiver().getIdentity().equals(member.getIdentity());
+
+        if (!hasAccess) {
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+        }
     }
 }
