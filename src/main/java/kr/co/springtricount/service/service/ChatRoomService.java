@@ -2,8 +2,10 @@ package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.persistence.entity.chat.ChatMessage;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
 import kr.co.springtricount.persistence.entity.member.Member;
+import kr.co.springtricount.persistence.repository.ChatMessageRepository;
 import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
@@ -14,6 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -26,6 +29,8 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
 
     private final ChatMessageService chatMessageService;
+
+    private final ChatMessageRepository chatMessageRepository;
 
     @Transactional
     public void createChatRoom(ChatRoomReqDTO chatRoomReqDTO) {
@@ -46,8 +51,6 @@ public class ChatRoomService {
         return new ChatRoomResDTO(findChatRoom.getName(), messages);
     }
 
-    // TODO: 현재 로그인 한 사용자가 참여한 모든 채팅방을 조회한다.
-    // 추가적인 요구사항은 채팅방들을 조회할 때, 각 채팅방에서 이루어진 채팅 메시지가 있다면 가장 최근 메시지를 각 채팅방과 함께 출력하도록 구현하자.
     public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity(User currentMember) {
 
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
@@ -56,10 +59,7 @@ public class ChatRoomService {
         final List<ChatRoom> chatRooms = chatRoomRepository.findAllByMember(findMember);
 
         return chatRooms.stream()
-                .map(chatRoom -> new ChatRoomResDTO(
-                        chatRoom.getName(),
-                        null
-                ))
+                .map(this::convertToChatRoomResDTO)
                 .toList();
     }
 
@@ -73,5 +73,24 @@ public class ChatRoomService {
                 .filter(chatRoom -> chatRoom.getId().equals(chatRoomId))
                 .findFirst()
                 .ifPresent(chatRoomRepository::delete);
+    }
+
+    private ChatRoomResDTO convertToChatRoomResDTO(ChatRoom chatRoom) {
+
+        final ChatMessageResDTO lastMessageResDTO = findLastMessage(chatRoom.getId());
+
+        return new ChatRoomResDTO(chatRoom.getName(), Collections.singletonList(lastMessageResDTO));
+    }
+
+    private ChatMessageResDTO findLastMessage(Long chatRoomId) {
+
+        final ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomIdOrderByCreatedDateDesc(chatRoomId)
+                .orElse(null);
+
+        if (lastMessage != null) {
+            return new ChatMessageResDTO(chatRoomId, lastMessage.getSender(), lastMessage.getMessage());
+        }
+
+        return null;
     }
 }
