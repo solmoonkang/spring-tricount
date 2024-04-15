@@ -75,18 +75,6 @@ public class ChatRoomService {
                 .toList();
     }
 
-    @Transactional
-    public void deleteChatRoom(User currentMember, Long chatRoomId) {
-
-        // TODO: 해당 사용자 둘 중 한 명이라도 채팅 방을 삭제하면 해당 사용자를 기준으로 생성된 채팅방은 제거되도록 구현
-
-        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
-
-        chatRoomRepository.findByIdAndMember(chatRoomId, findMember)
-                .ifPresent(chatRoomRepository::delete);
-    }
-
     private ChatRoomResDTO convertToChatRoomResDTO(ChatRoom chatRoom) {
 
         final ChatMessageResDTO lastMessageResDTO = findLastMessage(chatRoom.getId());
