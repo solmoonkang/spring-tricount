@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import static kr.co.springtricount.persistence.entity.chat.ChatRoomStatus.*;
+
 @Entity
 @Getter
 @Table(name = "tbl_chat_rooms")
@@ -35,6 +37,9 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
+    @Enumerated(value = EnumType.STRING)
+    private ChatRoomStatus chatRoomStatus = ACTIVE;
+
     @OneToMany(
             fetch = FetchType.LAZY,
             cascade = CascadeType.REMOVE
@@ -45,10 +50,12 @@ public class ChatRoom extends BaseEntity {
     public ChatRoom(String name,
                     Member sender,
                     Member receiver,
+                    ChatRoomStatus chatRoomStatus,
                     List<ChatMessage> chatMessages) {
         this.name = name;
         this.sender = sender;
         this.receiver = receiver;
+        this.chatRoomStatus = chatRoomStatus;
         this.chatMessages = chatMessages;
     }
 
