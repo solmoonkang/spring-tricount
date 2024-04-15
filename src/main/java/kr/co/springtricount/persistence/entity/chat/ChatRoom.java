@@ -3,6 +3,7 @@ package kr.co.springtricount.persistence.entity.chat;
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.entity.BaseEntity;
 import kr.co.springtricount.persistence.entity.member.Member;
+import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,8 +26,12 @@ public class ChatRoom extends BaseEntity {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "sender_id")
+    private Member sender;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -36,19 +41,23 @@ public class ChatRoom extends BaseEntity {
 
     @Builder
     public ChatRoom(String name,
-                    Member member,
+                    Member sender,
+                    Member receiver,
                     List<ChatMessage> chatMessages) {
         this.name = name;
-        this.member = member;
+        this.sender = sender;
+        this.receiver = receiver;
         this.chatMessages = chatMessages;
     }
 
-    public static ChatRoom toChatRoomEntity(String name,
-                                            Member member) {
+    public static ChatRoom toChatRoomEntity(Member sender,
+                                            Member receiver,
+                                            ChatRoomReqDTO chatRoomReqDTO) {
 
         return ChatRoom.builder()
-                .name(name)
-                .member(member)
+                .name(chatRoomReqDTO.name())
+                .sender(sender)
+                .receiver(receiver)
                 .build();
     }
 }
