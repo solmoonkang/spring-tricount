@@ -1,6 +1,7 @@
 package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.chat.ChatMessage;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
@@ -24,21 +25,24 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ChatRoomService {
 
-    private final ChatRoomRepository chatRoomRepository;
-
     private final MemberRepository memberRepository;
 
-    private final ChatMessageService chatMessageService;
+    private final ChatRoomRepository chatRoomRepository;
 
     private final ChatMessageRepository chatMessageRepository;
+
+    private final ChatMessageService chatMessageService;
 
     @Transactional
     public void createChatRoom(User currentMember, ChatRoomReqDTO chatRoomReqDTO) {
 
-        final Member member = memberRepository.findMemberByIdentity(currentMember.getUsername())
+        final Member sender = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(chatRoomReqDTO.name(), member);
+        final Member receiver = memberRepository.findMemberByIdentity(chatRoomReqDTO.receiverIdentity())
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+
+        final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(sender, receiver, chatRoomReqDTO);
 
         chatRoomRepository.save(chatRoom);
     }
@@ -48,10 +52,17 @@ public class ChatRoomService {
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
 
+        boolean isCurrentSender = findChatRoom.getSender().getIdentity().equals(currentMember.getUsername());
+        boolean isCurrentReceiver = findChatRoom.getReceiver().getIdentity().equals(currentMember.getUsername());
+
+        if (!(isCurrentSender || isCurrentReceiver)) {
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+        }
+
         List<ChatMessageResDTO> messages =
                 chatMessageService.findAllChatMessagesByChatRoomId(currentMember, chatRoomId);
 
-        return new ChatRoomResDTO(findChatRoom.getName(), messages);
+        return findChatRoom.toChatRoomResDTO(findChatRoom, messages);
     }
 
     public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity(User currentMember) {
@@ -80,7 +91,12 @@ public class ChatRoomService {
 
         final ChatMessageResDTO lastMessageResDTO = findLastMessage(chatRoom.getId());
 
-        return new ChatRoomResDTO(chatRoom.getName(), Collections.singletonList(lastMessageResDTO));
+        return new ChatRoomResDTO(
+                chatRoom.getName(),
+                chatRoom.getSender().getName(),
+                chatRoom.getReceiver().getName(),
+                Collections.singletonList(lastMessageResDTO)
+        );
     }
 
     private ChatMessageResDTO findLastMessage(Long chatRoomId) {
@@ -89,7 +105,7 @@ public class ChatRoomService {
                 .orElse(null);
 
         if (lastMessage != null) {
-            return new ChatMessageResDTO(chatRoomId, lastMessage.getSender(), lastMessage.getMessage());
+            return new ChatMessageResDTO(chatRoomId, lastMessage.getSender().getName(), lastMessage.getMessage());
         }
 
         return null;
