@@ -47,13 +47,4 @@ public class ChatRoomController {
                 chatRoomService.findAllChatRoomsByMemberIdentity(currentMember)
         );
     }
-
-    @DeleteMapping("/{chat_room_id}")
-    public ResponseFormat<Void> deleteChatRoom(@AuthenticationPrincipal User currentMember,
-                                               @PathVariable("chat_room_id") Long chatRoomId) {
-
-        chatRoomService.deleteChatRoom(currentMember, chatRoomId);
-
-        return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
-    }
 }
