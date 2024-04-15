@@ -70,7 +70,7 @@ public class ChatRoomService {
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomByMember(findMember);
+        final List<ChatRoom> chatRooms = chatRoomRepository.findBySenderOrReceiver(findMember, findMember);
 
         return chatRooms.stream()
                 .map(this::convertToChatRoomResDTO)
