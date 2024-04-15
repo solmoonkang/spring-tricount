@@ -2,7 +2,6 @@ package kr.co.springtricount.persistence.entity.chat;
 
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.entity.BaseEntity;
-import kr.co.springtricount.persistence.entity.member.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,10 +23,6 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
-
     @OneToMany(
             fetch = FetchType.LAZY,
             cascade = CascadeType.REMOVE
@@ -36,19 +31,15 @@ public class ChatRoom extends BaseEntity {
 
     @Builder
     public ChatRoom(String name,
-                    Member member,
                     List<ChatMessage> chatMessages) {
         this.name = name;
-        this.member = member;
         this.chatMessages = chatMessages;
     }
 
-    public static ChatRoom toChatRoomEntity(Member receiver,
-                                            String chatRoomName) {
+    public static ChatRoom toChatRoomEntity(String name) {
 
         return ChatRoom.builder()
-                .name(chatRoomName)
-                .member(receiver)
+                .name(name)
                 .build();
     }
 }
