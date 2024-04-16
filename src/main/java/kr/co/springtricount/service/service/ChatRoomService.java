@@ -50,7 +50,7 @@ public class ChatRoomService {
     public ChatRoomResDTO enterChatRoom(User currentMember, Long chatRoomId) {
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
@@ -94,6 +94,7 @@ public class ChatRoomService {
         return null;
     }
 
+    // TODO: 현재 로그인을 한 사용자가 sender인지 receiver인지 판단하는 로직을 ChatRoomRepository에 메서드로 구현하자.
     private void checkAccessPermission(Member member, ChatRoom chatRoom) {
 
         boolean hasAccess = chatRoom.getSender().getIdentity().equals(member.getIdentity()) ||
