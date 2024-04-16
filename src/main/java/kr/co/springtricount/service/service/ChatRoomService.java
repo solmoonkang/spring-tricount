@@ -42,7 +42,7 @@ public class ChatRoomService {
         final Member receiver = memberRepository.findMemberByIdentity(chatRoomReqDTO.receiverIdentity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final ChatRoom chatRoom = ChatRoom.toChatRoomEntity(sender, receiver, chatRoomReqDTO);
+        final ChatRoom chatRoom = ChatRoom.createChatRoom(sender, receiver, chatRoomReqDTO);
 
         chatRoomRepository.save(chatRoom);
     }
@@ -60,7 +60,7 @@ public class ChatRoomService {
         List<ChatMessageResDTO> messages =
                 chatMessageService.findAllChatMessagesByChatRoomId(currentMember, chatRoomId);
 
-        return findChatRoom.toChatRoomResDTO(messages);
+        return toChatRoomResDTO(findChatRoom, messages);
     }
 
     public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity(User currentMember) {
@@ -79,7 +79,7 @@ public class ChatRoomService {
 
         final ChatMessageResDTO lastMessageResDTO = findLastMessage(chatRoom.getId());
 
-        return chatRoom.toChatRoomResDTO(Collections.singletonList(lastMessageResDTO));
+        return toChatRoomResDTO(chatRoom, Collections.singletonList(lastMessageResDTO));
     }
 
     private ChatMessageResDTO findLastMessage(Long chatRoomId) {
@@ -103,5 +103,15 @@ public class ChatRoomService {
         if (!hasAccess) {
             throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
+    }
+
+    private ChatRoomResDTO toChatRoomResDTO(ChatRoom chatRoom, List<ChatMessageResDTO> messages) {
+
+        return new ChatRoomResDTO(
+                chatRoom.getName(),
+                chatRoom.getSender().getName(),
+                chatRoom.getReceiver().getName(),
+                messages
+        );
     }
 }
