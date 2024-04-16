@@ -39,59 +39,43 @@ public class ChatMessageService {
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
-        if (!(findChatRoom.getSender().equals(findMember) || findChatRoom.getReceiver().equals(findMember))) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
-        }
+        validateChatRoomAccess(findChatRoom, findMember);
 
         final ChatMessage chatMessage = ChatMessage.toChatMessageEntity(findMember, findChatRoom, chatMessageReqDTO);
 
         chatMessageRepository.save(chatMessage);
 
-        ChatMessageResDTO chatMessageResDTO =
-                new ChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage());
-
-        webSocketChatHandler.sendMessageToChatRoom(chatRoomId, chatMessageResDTO);
+        webSocketChatHandler.sendMessageToChatRoom(
+                chatRoomId,
+                chatMessage.toChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage())
+        );
     }
 
     public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(User currentMember, Long chatRoomId) {
 
-        final Member findMember = checkCurrentMemberByIdentity(currentMember.getUsername());
+        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUNT));
+                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
         final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
 
         return chatMessages.stream()
-                .map(chatMessage -> new ChatMessageResDTO(
+                .map(chatMessage -> chatMessage.toChatMessageResDTO(
                         findChatRoom.getId(),
                         findMember.getName(),
-                        chatMessage.getMessage()
-                ))
+                        chatMessage.getMessage())
+                )
                 .toList();
     }
 
-    private ChatRoom createOrGetChatRoom(Long chatRoomId, Member receiver) {
+    private void validateChatRoomAccess(ChatRoom chatRoom, Member member) {
 
-        return chatRoomRepository.findById(chatRoomId)
-                .orElseGet(() -> createChatRoom(receiver));
-    }
-
-    private ChatRoom createChatRoom(Member receiver) {
-
-//        return chatRoomRepository.save(ChatRoom.toChatRoomEntity(
-//                receiver.getName(),
-//                receiver
-//                ));
-
-        return null;
-    }
-
-    private Member checkCurrentMemberByIdentity(String memberIdentity) {
-
-        return memberRepository.findMemberByIdentity(memberIdentity)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+        }
     }
 }
