@@ -2,6 +2,7 @@ package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
+import kr.co.springtricount.infra.handler.WebSocketChatHandler;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.chat.ChatMessage;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
@@ -29,10 +30,11 @@ public class ChatMessageService {
 
     private final MemberRepository memberRepository;
 
+    private final WebSocketChatHandler webSocketChatHandler;
+
     @Transactional
     public void sendAndSaveChatMessage(User currentMember, Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
 
-        // TODO: 메시지를 전송하는 부분은 아직 미구현
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
@@ -46,6 +48,11 @@ public class ChatMessageService {
         final ChatMessage chatMessage = ChatMessage.toChatMessageEntity(findMember, findChatRoom, chatMessageReqDTO);
 
         chatMessageRepository.save(chatMessage);
+
+        ChatMessageResDTO chatMessageResDTO =
+                new ChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage());
+
+        webSocketChatHandler.sendMessageToChatRoom(chatRoomId, chatMessageResDTO);
     }
 
     public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(User currentMember, Long chatRoomId) {
