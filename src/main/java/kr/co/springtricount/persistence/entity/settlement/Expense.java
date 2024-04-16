@@ -53,9 +53,9 @@ public class Expense extends BaseEntity {
         this.expenseDate = expenseDate;
     }
 
-    public static Expense toExpenseEntity(ExpenseReqDTO expenseReqDTO,
-                                          Member member,
-                                          Settlement settlement) {
+    public static Expense createExpense(ExpenseReqDTO expenseReqDTO,
+                                        Member member,
+                                        Settlement settlement) {
 
         return Expense.builder()
                 .name(expenseReqDTO.expenseName())

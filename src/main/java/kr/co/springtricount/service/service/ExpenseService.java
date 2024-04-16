@@ -45,7 +45,7 @@ public class ExpenseService {
         final Member member = memberRepository.findMemberByIdentity(expenseReqDTO.payerMember().identity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final Expense expense = Expense.toExpenseEntity(expenseReqDTO, member, settlement);
+        final Expense expense = Expense.createExpense(expenseReqDTO, member, settlement);
 
         expenseRepository.save(expense);
     }
