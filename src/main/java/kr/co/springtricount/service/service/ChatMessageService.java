@@ -13,6 +13,7 @@ import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,8 @@ public class ChatMessageService {
 
     private final WebSocketChatHandler webSocketChatHandler;
 
+    private final StringRedisTemplate stringRedisTemplate;
+
     @Transactional
     public void sendAndSaveChatMessage(User currentMember, Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
 
@@ -47,6 +50,10 @@ public class ChatMessageService {
 
         chatMessageRepository.save(chatMessage);
 
+        // Save Message in Redis
+        String chatMessageKey = "chatRoom: " + chatRoomId + ": messages";
+        stringRedisTemplate.opsForList().rightPush(chatMessageKey, chatMessage.getMessage());
+
         webSocketChatHandler.sendMessageToChatRoom(
                 chatRoomId,
                 toChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage())
@@ -60,6 +67,8 @@ public class ChatMessageService {
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
+
+        checkAccessPermission(findMember, findChatRoom);
 
         final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
 
@@ -82,5 +91,12 @@ public class ChatMessageService {
     private ChatMessageResDTO toChatMessageResDTO(Long chatRoomId, String senderName, String message) {
 
         return new ChatMessageResDTO(chatRoomId, senderName, message);
+    }
+
+    private void checkAccessPermission(Member member, ChatRoom chatRoom) {
+
+        if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
+            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+        }
     }
 }

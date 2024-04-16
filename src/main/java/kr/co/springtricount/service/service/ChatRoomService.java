@@ -94,7 +94,6 @@ public class ChatRoomService {
         return null;
     }
 
-    // TODO: 현재 로그인을 한 사용자가 sender인지 receiver인지 판단하는 로직을 ChatRoomRepository에 메서드로 구현하자.
     private void checkAccessPermission(Member member, ChatRoom chatRoom) {
 
         if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
