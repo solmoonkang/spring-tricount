@@ -20,31 +20,31 @@ import lombok.NoArgsConstructor;
 public class ChatMessage extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member sender;
-
-    @ManyToOne
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
+
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private Member sender;
 
     @Column(name = "message")
     private String message;
 
     @Builder
-    public ChatMessage(Member sender,
-                       ChatRoom chatRoom,
+    public ChatMessage(ChatRoom chatRoom,
+                       Member sender,
                        String message) {
-        this.sender = sender;
         this.chatRoom = chatRoom;
+        this.sender = sender;
         this.message = message;
     }
 
-    public static ChatMessage toChatMessageEntity(Member member,
+    public static ChatMessage toChatMessageEntity(Member sender,
                                                   ChatRoom chatRoom,
                                                   ChatMessageReqDTO chatMessageReqDTO) {
 
         return ChatMessage.builder()
-                .sender(member)
+                .sender(sender)
                 .chatRoom(chatRoom)
                 .message(chatMessageReqDTO.message())
                 .build();
