@@ -68,7 +68,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             removeClosedSession(chatRoomSession);
         }
 
-        sendMessageToChatRoom(chatMessageResDTO, chatRoomSession);
+        sendMessageToChatRoom(chatRoomId, chatMessageResDTO);
     }
 
     // 소켓 종료 확인
@@ -85,11 +85,14 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         chatRoomSession.removeIf(session -> !sessions.contains(session));
     }
 
-    private void sendMessageToChatRoom(ChatMessageResDTO chatMessageResDTO,
-                                       Set<WebSocketSession> chatRoomSession) {
+    public void sendMessageToChatRoom(Long chatRoomId,
+                                      ChatMessageResDTO chatMessageResDTO) {
 
-        chatRoomSession.parallelStream()
-                .forEach(session -> sendMessage(session, chatMessageResDTO));
+        Set<WebSocketSession> chatRoomSessions = chatRoomSessionMap.get(chatRoomId);
+
+        if (chatRoomSessions != null) {
+            chatRoomSessions.parallelStream().forEach(session -> sendMessage(session, chatMessageResDTO));
+        }
     }
 
     public <T> void sendMessage(WebSocketSession webSocketSession, T message) {
