@@ -43,7 +43,7 @@ public enum ResponseStatus {
 
 
     // CHAT ROOM
-    FAIL_CHAT_ROOM_NOT_FOUNT(HttpStatus.NOT_FOUND, "❎ [ERROR] 요청한 채팅방을 찾을 수 없습니다.");
+    FAIL_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "❎ [ERROR] 요청한 채팅방을 찾을 수 없습니다.");
 
 
     private HttpStatus status;
