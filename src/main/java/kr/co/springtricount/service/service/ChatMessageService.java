@@ -66,7 +66,7 @@ public class ChatMessageService {
         return chatMessages.stream()
                 .map(chatMessage -> toChatMessageResDTO(
                         findChatRoom.getId(),
-                        findMember.getName(),
+                        chatMessage.getSender().getName(),
                         chatMessage.getMessage())
                 )
                 .toList();
