@@ -39,8 +39,8 @@ public class MemberSettlement extends BaseEntity {
         this.settlement = settlement;
     }
 
-    public static MemberSettlement toMemberSettlementEntity(Member member,
-                                                            Settlement settlement) {
+    public static MemberSettlement createMemberSettlement(Member member,
+                                                          Settlement settlement) {
 
         return MemberSettlement.builder()
                 .member(member)

@@ -42,10 +42,10 @@ public class SettlementService {
         final Member loginMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final Settlement settlement = Settlement.toSettlementEntity(settlementReqDTO);
+        final Settlement settlement = Settlement.createSettlement(settlementReqDTO);
 
         final MemberSettlement memberSettlement =
-                MemberSettlement.toMemberSettlementEntity(loginMember, settlement);
+                MemberSettlement.createMemberSettlement(loginMember, settlement);
 
         settlementRepository.save(settlement);
 

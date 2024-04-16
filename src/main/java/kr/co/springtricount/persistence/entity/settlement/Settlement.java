@@ -41,7 +41,7 @@ public class Settlement extends BaseEntity {
     }
 
 
-    public static Settlement toSettlementEntity(SettlementReqDTO settlementReqDTO) {
+    public static Settlement createSettlement(SettlementReqDTO settlementReqDTO) {
 
         return Settlement.builder()
                 .name(settlementReqDTO.settlementName())
