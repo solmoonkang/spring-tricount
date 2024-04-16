@@ -36,8 +36,8 @@ public class Member extends BaseEntity {
         this.name = name;
     }
 
-    public static Member toMemberEntity(SignupDTO signupDTO,
-                                        String encodePassword) {
+    public static Member createMember(SignupDTO signupDTO,
+                                      String encodePassword) {
 
         return Member.builder()
                 .identity(signupDTO.identity())

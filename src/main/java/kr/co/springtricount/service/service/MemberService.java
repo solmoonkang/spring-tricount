@@ -29,8 +29,9 @@ public class MemberService {
 
         checkIdentityExists(signupDTO.identity());
 
-        final Member member = Member.toMemberEntity(
-                signupDTO, passwordEncoder.encode(signupDTO.password())
+        final Member member = Member.createMember(
+                signupDTO,
+                passwordEncoder.encode(signupDTO.password())
         );
 
         memberRepository.save(member);
