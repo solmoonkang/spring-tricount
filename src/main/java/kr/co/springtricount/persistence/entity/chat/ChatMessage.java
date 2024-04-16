@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kr.co.springtricount.persistence.entity.BaseEntity;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
+import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,5 +49,12 @@ public class ChatMessage extends BaseEntity {
                 .chatRoom(chatRoom)
                 .message(chatMessageReqDTO.message())
                 .build();
+    }
+
+    public ChatMessageResDTO toChatMessageResDTO(Long chatRoomId,
+                                                 String senderName,
+                                                 String message) {
+
+        return new ChatMessageResDTO(chatRoomId, senderName, message);
     }
 }
