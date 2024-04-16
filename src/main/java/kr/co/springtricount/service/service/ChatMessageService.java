@@ -43,13 +43,13 @@ public class ChatMessageService {
 
         validateChatRoomAccess(findChatRoom, findMember);
 
-        final ChatMessage chatMessage = ChatMessage.toChatMessageEntity(findMember, findChatRoom, chatMessageReqDTO);
+        final ChatMessage chatMessage = ChatMessage.createChatMessage(findMember, findChatRoom, chatMessageReqDTO);
 
         chatMessageRepository.save(chatMessage);
 
         webSocketChatHandler.sendMessageToChatRoom(
                 chatRoomId,
-                chatMessage.toChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage())
+                toChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage())
         );
     }
 
@@ -64,7 +64,7 @@ public class ChatMessageService {
         final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
 
         return chatMessages.stream()
-                .map(chatMessage -> chatMessage.toChatMessageResDTO(
+                .map(chatMessage -> toChatMessageResDTO(
                         findChatRoom.getId(),
                         findMember.getName(),
                         chatMessage.getMessage())
@@ -77,5 +77,10 @@ public class ChatMessageService {
         if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
             throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
+    }
+
+    private ChatMessageResDTO toChatMessageResDTO(Long chatRoomId, String senderName, String message) {
+
+        return new ChatMessageResDTO(chatRoomId, senderName, message);
     }
 }

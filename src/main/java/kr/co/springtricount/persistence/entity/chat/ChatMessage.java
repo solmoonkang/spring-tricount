@@ -40,7 +40,7 @@ public class ChatMessage extends BaseEntity {
         this.message = message;
     }
 
-    public static ChatMessage toChatMessageEntity(Member sender,
+    public static ChatMessage createChatMessage(Member sender,
                                                   ChatRoom chatRoom,
                                                   ChatMessageReqDTO chatMessageReqDTO) {
 
@@ -49,12 +49,5 @@ public class ChatMessage extends BaseEntity {
                 .chatRoom(chatRoom)
                 .message(chatMessageReqDTO.message())
                 .build();
-    }
-
-    public ChatMessageResDTO toChatMessageResDTO(Long chatRoomId,
-                                                 String senderName,
-                                                 String message) {
-
-        return new ChatMessageResDTO(chatRoomId, senderName, message);
     }
 }
