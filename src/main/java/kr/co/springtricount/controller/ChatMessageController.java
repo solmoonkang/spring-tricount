@@ -21,11 +21,11 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
     @PostMapping("/{chat_room_id}")
-    public ResponseFormat<Void> createChatMessage(@AuthenticationPrincipal User currentMember,
-                                                  @PathVariable("chat_room_id") Long chatRoomId,
-                                                  @RequestBody @Validated ChatMessageReqDTO chatMessageReqDTO) {
+    public ResponseFormat<Void> sendAndSaveChatMessage(@AuthenticationPrincipal User currentMember,
+                                                       @PathVariable("chat_room_id") Long chatRoomId,
+                                                       @RequestBody @Validated ChatMessageReqDTO chatMessageReqDTO) {
 
-        chatMessageService.createChatMessage(currentMember, chatRoomId, chatMessageReqDTO);
+        chatMessageService.sendAndSaveChatMessage(currentMember, chatRoomId, chatMessageReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
