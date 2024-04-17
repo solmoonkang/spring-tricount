@@ -1,11 +1,14 @@
-# Dockerfile
+FROM amazonlinux:latest
+MAINTAINER the.eris.net
 
-FROM openjdk:17-alpine
+RUN yum update -y
+RUN yum install httpd -y
+RUN yum install java-21-amazon-corretto -y
+COPY ./index.html /var/www/html/index.html
 
-ARG JAR_FILE=build/libs/*.jar
+COPY ./entrypoint.sh /entrypoint.sh
+COPY build/libs/*.jar /app.jar
 
-COPY ${JAR_FILE} app.jar
+EXPOSE 80
 
-COPY ./data/tricount /data/tricount
-
-ENTRYPOINT ["java", "-Dspring.profiles.active=local", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "/entrypoint.sh"]
