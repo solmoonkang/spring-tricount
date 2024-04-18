@@ -9,6 +9,8 @@ import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.repository.ChatMessageRepository;
 import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.persistence.repository.MemberRepository;
+import kr.co.springtricount.persistence.repository.search.ChatMessageSearchRepository;
+import kr.co.springtricount.persistence.repository.search.ChatRoomSearchRepository;
 import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
@@ -32,6 +34,10 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     private final ChatMessageService chatMessageService;
+
+    private final ChatRoomSearchRepository chatRoomSearchRepository;
+
+    private final ChatMessageSearchRepository chatMessageSearchRepository;
 
     @Transactional
     public void createChatRoom(User currentMember, ChatRoomReqDTO chatRoomReqDTO) {
@@ -58,7 +64,7 @@ public class ChatRoomService {
         checkAccessPermission(findMember, findChatRoom);
 
         List<ChatMessageResDTO> messages =
-                chatMessageService.findAllChatMessagesByChatRoomId(currentMember, chatRoomId);
+                chatMessageSearchRepository.findAllMessageByChatRoomId(chatRoomId);
 
         return toChatRoomResDTO(findChatRoom, messages);
     }
@@ -68,7 +74,8 @@ public class ChatRoomService {
         final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
 
-        final List<ChatRoom> chatRooms = chatRoomRepository.findBySenderOrReceiver(findMember, findMember);
+        final List<ChatRoom> chatRooms =
+                chatRoomSearchRepository.findAllChatRoomsByMemberWithMessages(findMember);
 
         return chatRooms.stream()
                 .map(this::convertToChatRoomResDTO)
