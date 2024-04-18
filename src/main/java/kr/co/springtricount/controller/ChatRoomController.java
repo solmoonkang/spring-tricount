@@ -6,8 +6,6 @@ import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import kr.co.springtricount.service.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,30 +19,28 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping
-    public ResponseFormat<Void> createChatRoom(@AuthenticationPrincipal User currentMember,
-                                               @RequestBody @Validated ChatRoomReqDTO chatRoomReqDTO) {
+    public ResponseFormat<Void> createChatRoom(@RequestBody @Validated ChatRoomReqDTO chatRoomReqDTO) {
 
-        chatRoomService.createChatRoom(currentMember, chatRoomReqDTO);
+        chatRoomService.createChatRoom(chatRoomReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
 
     @GetMapping("/{chat_room_id}")
-    public ResponseFormat<ChatRoomResDTO> enterChatRoom(@AuthenticationPrincipal User currentMember,
-                                                        @PathVariable("chat_room_id") Long chatRoomId) {
+    public ResponseFormat<ChatRoomResDTO> enterChatRoom(@PathVariable("chat_room_id") Long chatRoomId) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                chatRoomService.enterChatRoom(currentMember, chatRoomId)
+                chatRoomService.enterChatRoom(chatRoomId)
         );
     }
 
     @GetMapping
-    public ResponseFormat<List<ChatRoomResDTO>> findAllChatRoomsByMemberIdentity(@AuthenticationPrincipal User currentMember) {
+    public ResponseFormat<List<ChatRoomResDTO>> findAllChatRoomsByMemberIdentity() {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                chatRoomService.findAllChatRoomsByMemberIdentity(currentMember)
+                chatRoomService.findAllChatRoomsByMemberIdentity()
         );
     }
 }
