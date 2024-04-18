@@ -1,9 +1,13 @@
 package kr.co.springtricount.infra.security;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,5 +30,17 @@ public class MemberDetailService implements UserDetailsService {
         return memberRepository.findMemberByIdentity(username)
                 .map(member -> new User(member.getIdentity(), member.getPassword(), new ArrayList<>()))
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+    }
+
+    public Member getLoggedInMember() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            return memberRepository.findMemberByIdentity(authentication.getName())
+                    .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        }
+
+        throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
     }
 }
