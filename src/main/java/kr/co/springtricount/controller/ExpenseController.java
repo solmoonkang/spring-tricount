@@ -5,8 +5,6 @@ import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.request.ExpenseReqDTO;
 import kr.co.springtricount.service.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,19 +16,17 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     @PostMapping
-    public ResponseFormat<Void> createExpense(@AuthenticationPrincipal User currentMember,
-                                              @RequestBody @Validated ExpenseReqDTO expenseReqDTO) {
+    public ResponseFormat<Void> createExpense(@RequestBody @Validated ExpenseReqDTO expenseReqDTO) {
 
-        expenseService.createExpense(currentMember, expenseReqDTO);
+        expenseService.createExpense(expenseReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
 
     @DeleteMapping("/{expense_id}")
-    public ResponseFormat<Void> deleteExpense(@AuthenticationPrincipal User currentMember,
-                                              @PathVariable(name = "expense_id") Long expenseId) {
+    public ResponseFormat<Void> deleteExpense(@PathVariable(name = "expense_id") Long expenseId) {
 
-        expenseService.deleteExpenseById(currentMember, expenseId);
+        expenseService.deleteExpenseById(expenseId);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
