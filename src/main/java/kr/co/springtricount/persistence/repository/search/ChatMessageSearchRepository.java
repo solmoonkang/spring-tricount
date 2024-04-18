@@ -20,10 +20,10 @@ public class ChatMessageSearchRepository {
     public List<ChatMessageResDTO> findAllMessageByChatRoomId(Long chatRoomId) {
 
         return jpaQueryFactory
-                .select(Projections.constructor(ChatMessageResDTO.class,
-                    chatMessage.id,
-                    chatMessage.sender.name,
-                    chatMessage.message)
+                .select(Projections.fields(ChatMessageResDTO.class,
+                    chatMessage.id.as("chatMessageId"),
+                    chatMessage.sender.name.as("chatMessageSender"),
+                    chatMessage.message).as("chatMessage")
                 )
                 .from(chatMessage)
                 .where(chatMessage.chatRoom.id.eq(chatRoomId))
