@@ -5,18 +5,21 @@ import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.handler.WebSocketChatHandler;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.infra.security.MemberDetailService;
+import kr.co.springtricount.infra.utils.RedisKeyUtils;
+import kr.co.springtricount.infra.utils.RedisUtils;
 import kr.co.springtricount.persistence.entity.chat.ChatMessage;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.repository.ChatMessageRepository;
 import kr.co.springtricount.persistence.repository.ChatRoomRepository;
-import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,11 +31,13 @@ public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
 
-    private final MemberRepository memberRepository;
-
     private final WebSocketChatHandler webSocketChatHandler;
 
     private final MemberDetailService memberDetailService;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final RedisUtils redisUtils;
 
     @Transactional
     public void sendAndSaveChatMessage(Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
@@ -42,16 +47,15 @@ public class ChatMessageService {
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
-        validateChatRoomAccess(findChatRoom, findMember);
+        checkAccessPermission(findMember, findChatRoom);
 
         final ChatMessage chatMessage = ChatMessage.createChatMessage(findMember, findChatRoom, chatMessageReqDTO);
 
         chatMessageRepository.save(chatMessage);
 
-        webSocketChatHandler.sendMessageToChatRoom(
-                chatRoomId,
-                toChatMessageResDTO(chatRoomId, findMember.getName(), chatMessage.getMessage())
-        );
+        sendChatMessageViaWebSocket(chatRoomId, chatMessage);
+
+        updateChatMessageInRedis(chatRoomId, chatMessage);
     }
 
     public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(Long chatRoomId) {
@@ -66,24 +70,17 @@ public class ChatMessageService {
         final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
 
         return chatMessages.stream()
-                .map(chatMessage -> toChatMessageResDTO(
-                        findChatRoom.getId(),
-                        chatMessage.getSender().getName(),
-                        chatMessage.getMessage())
-                )
+                .map(this::convertToChatMessageResDTO)
                 .toList();
     }
 
-    private void validateChatRoomAccess(ChatRoom chatRoom, Member member) {
+    private ChatMessageResDTO convertToChatMessageResDTO(ChatMessage chatMessage) {
 
-        if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
-        }
-    }
-
-    private ChatMessageResDTO toChatMessageResDTO(Long chatRoomId, String senderName, String message) {
-
-        return new ChatMessageResDTO(chatRoomId, senderName, message);
+        return new ChatMessageResDTO(
+                chatMessage.getChatRoom().getId(),
+                chatMessage.getSender().getName(),
+                chatMessage.getMessage()
+        );
     }
 
     private void checkAccessPermission(Member member, ChatRoom chatRoom) {
@@ -91,5 +88,20 @@ public class ChatMessageService {
         if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
             throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
         }
+    }
+
+    private void updateChatMessageInRedis(Long chatRoomId, ChatMessage chatMessage) {
+
+        final String redisKey = RedisKeyUtils.chatRoomKey(chatRoomId);
+
+        redisUtils.addChatMessageToRedisList(redisKey, convertToChatMessageResDTO(chatMessage));
+    }
+
+    private void sendChatMessageViaWebSocket(Long chatRoomId, ChatMessage chatMessage) {
+
+        webSocketChatHandler.sendMessageToChatRoom(
+                chatRoomId,
+                convertToChatMessageResDTO(chatMessage)
+        );
     }
 }
