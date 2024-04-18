@@ -2,10 +2,10 @@ package kr.co.springtricount.service.service;
 
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.security.MemberDetailService;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.entity.member.MemberSettlement;
 import kr.co.springtricount.persistence.entity.settlement.Settlement;
-import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.persistence.repository.MemberSettlementRepository;
 import kr.co.springtricount.persistence.repository.SettlementRepository;
 import kr.co.springtricount.persistence.repository.search.SettlementSearchRepository;
@@ -14,7 +14,6 @@ import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,19 +27,18 @@ public class SettlementService {
 
     private final SettlementRepository settlementRepository;
 
-    private final MemberRepository memberRepository;
-
     private final MemberSettlementRepository memberSettlementRepository;
 
     private final ExpenseService expenseService;
 
     private final SettlementSearchRepository settlementSearchRepository;
 
-    @Transactional
-    public void createSettlement(User currentMember, SettlementReqDTO settlementReqDTO) {
+    private final MemberDetailService memberDetailService;
 
-        final Member loginMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+    @Transactional
+    public void createSettlement(SettlementReqDTO settlementReqDTO) {
+
+        final Member loginMember = memberDetailService.getLoggedInMember();
 
         final Settlement settlement = Settlement.createSettlement(settlementReqDTO);
 
@@ -52,9 +50,9 @@ public class SettlementService {
         memberSettlementRepository.save(memberSettlement);
     }
 
-    public SettlementResDTO findSettlementById(User currentMember, Long settlementId) {
+    public SettlementResDTO findSettlementById(Long settlementId) {
 
-        validateMemberParticipation(settlementId, currentMember.getUsername());
+        validateMemberParticipation(settlementId, memberDetailService.getLoggedInMember().getIdentity());
 
         List<Settlement> settlements =
                 settlementSearchRepository.findSettlementDetailsById(settlementId);
@@ -77,9 +75,9 @@ public class SettlementService {
     }
 
     @Transactional
-    public void deleteSettlementById(User currentMember, Long settlementId) {
+    public void deleteSettlementById(Long settlementId) {
 
-        validateMemberParticipation(settlementId, currentMember.getUsername());
+        validateMemberParticipation(settlementId, memberDetailService.getLoggedInMember().getIdentity());
 
         List<MemberSettlement> memberSettlements =
                 memberSettlementRepository.findAllBySettlementId(settlementId);
@@ -99,9 +97,9 @@ public class SettlementService {
                 .collect(Collectors.toList());
     }
 
-    private void validateMemberParticipation(Long settlementId, String currentMember) {
+    private void validateMemberParticipation(Long settlementId, String memberIdentity) {
 
-        if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, currentMember)) {
+        if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberIdentity)) {
             throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
         }
     }
