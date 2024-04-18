@@ -4,6 +4,7 @@ import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.infra.security.MemberDetailService;
+import kr.co.springtricount.infra.utils.RedisKeyUtils;
 import kr.co.springtricount.persistence.entity.chat.ChatMessage;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
 import kr.co.springtricount.persistence.entity.member.Member;
@@ -16,6 +17,7 @@ import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,8 @@ public class ChatRoomService {
 
     private final MemberDetailService memberDetailService;
 
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Transactional
     public void createChatRoom(ChatRoomReqDTO chatRoomReqDTO) {
 
@@ -54,15 +58,14 @@ public class ChatRoomService {
 
     public ChatRoomResDTO enterChatRoom(Long chatRoomId) {
 
+        final Member findMember = memberDetailService.getLoggedInMember();
+
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
-        final Member findMember = memberDetailService.getLoggedInMember();
-
         checkAccessPermission(findMember, findChatRoom);
 
-        List<ChatMessageResDTO> messages =
-                chatMessageSearchRepository.findAllMessageByChatRoomId(chatRoomId);
+        final List<ChatMessageResDTO> messages = updateChatRoomMessagesInRedis(chatRoomId);
 
         return toChatRoomResDTO(findChatRoom, messages);
     }
@@ -113,5 +116,22 @@ public class ChatRoomService {
                 chatRoom.getReceiver().getName(),
                 messages
         );
+    }
+
+    private List<ChatMessageResDTO> updateChatRoomMessagesInRedis(Long chatRoomId) {
+
+        String key = RedisKeyUtils.chatRoomKey(chatRoomId);
+
+        List<ChatMessageResDTO> messages = (List<ChatMessageResDTO>) redisTemplate
+                .opsForValue()
+                .get(key);
+
+        if (messages == null) {
+            messages = chatMessageSearchRepository.findAllMessageByChatRoomId(chatRoomId);
+
+            redisTemplate.opsForValue().set(key, messages);
+        }
+
+        return messages;
     }
 }
