@@ -3,6 +3,7 @@ package kr.co.springtricount.service.service;
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.security.MemberDetailService;
 import kr.co.springtricount.persistence.entity.chat.ChatMessage;
 import kr.co.springtricount.persistence.entity.chat.ChatRoom;
 import kr.co.springtricount.persistence.entity.member.Member;
@@ -15,7 +16,6 @@ import kr.co.springtricount.service.dto.request.ChatRoomReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import kr.co.springtricount.service.dto.response.ChatRoomResDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,17 +33,16 @@ public class ChatRoomService {
 
     private final ChatMessageRepository chatMessageRepository;
 
-    private final ChatMessageService chatMessageService;
-
     private final ChatRoomSearchRepository chatRoomSearchRepository;
 
     private final ChatMessageSearchRepository chatMessageSearchRepository;
 
-    @Transactional
-    public void createChatRoom(User currentMember, ChatRoomReqDTO chatRoomReqDTO) {
+    private final MemberDetailService memberDetailService;
 
-        final Member sender = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+    @Transactional
+    public void createChatRoom(ChatRoomReqDTO chatRoomReqDTO) {
+
+        final Member sender = memberDetailService.getLoggedInMember();
 
         final Member receiver = memberRepository.findMemberByIdentity(chatRoomReqDTO.receiverIdentity())
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
@@ -53,13 +52,12 @@ public class ChatRoomService {
         chatRoomRepository.save(chatRoom);
     }
 
-    public ChatRoomResDTO enterChatRoom(User currentMember, Long chatRoomId) {
+    public ChatRoomResDTO enterChatRoom(Long chatRoomId) {
 
         final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
-        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member findMember = memberDetailService.getLoggedInMember();
 
         checkAccessPermission(findMember, findChatRoom);
 
@@ -69,10 +67,9 @@ public class ChatRoomService {
         return toChatRoomResDTO(findChatRoom, messages);
     }
 
-    public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity(User currentMember) {
+    public List<ChatRoomResDTO> findAllChatRoomsByMemberIdentity() {
 
-        final Member findMember = memberRepository.findMemberByIdentity(currentMember.getUsername())
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
+        final Member findMember = memberDetailService.getLoggedInMember();
 
         final List<ChatRoom> chatRooms =
                 chatRoomSearchRepository.findAllChatRoomsByMemberWithMessages(findMember);
