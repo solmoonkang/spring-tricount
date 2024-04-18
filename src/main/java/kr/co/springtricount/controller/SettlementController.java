@@ -6,8 +6,6 @@ import kr.co.springtricount.service.dto.request.SettlementReqDTO;
 import kr.co.springtricount.service.service.SettlementService;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,30 +17,27 @@ public class SettlementController {
     private final SettlementService settlementService;
 
     @PostMapping
-    public ResponseFormat<Void> createSettlement(@AuthenticationPrincipal User currentMember,
-                                                 @RequestBody @Validated SettlementReqDTO settlementReqDTO) {
+    public ResponseFormat<Void> createSettlement(@RequestBody @Validated SettlementReqDTO settlementReqDTO) {
 
-        settlementService.createSettlement(currentMember, settlementReqDTO);
+        settlementService.createSettlement(settlementReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }
 
     @GetMapping("/{settlement_id}")
-    public ResponseFormat<SettlementResDTO> findSettlementById(@AuthenticationPrincipal User currentMember,
-                                                               @PathVariable("settlement_id") Long settlementId) {
+    public ResponseFormat<SettlementResDTO> findSettlementById(@PathVariable("settlement_id") Long settlementId) {
 
         return ResponseFormat.successMessageWithData(
                 ResponseStatus.SUCCESS_EXECUTE,
-                settlementService.findSettlementById(currentMember, settlementId)
+                settlementService.findSettlementById(settlementId)
         );
     }
 
     @DeleteMapping("/{settlement_id}")
-    public ResponseFormat<Void> deleteSettlementById(@AuthenticationPrincipal User currentMember,
-                                                     @PathVariable("settlement_id") Long settlementId) {
+    public ResponseFormat<Void> deleteSettlementById(@PathVariable("settlement_id") Long settlementId) {
 
 
-        settlementService.deleteSettlementById(currentMember, settlementId);
+        settlementService.deleteSettlementById(settlementId);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_EXECUTE);
     }
