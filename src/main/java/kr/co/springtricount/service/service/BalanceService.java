@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class BalanceService {
 
-    // TODO: N+1 문제 해결 및 BalanceSearchRepository 메서드 수정 필요
     public List<BalanceResDTO> findBalanceBySettlement(SettlementResDTO settlement) {
 
         if (settlement == null) {
