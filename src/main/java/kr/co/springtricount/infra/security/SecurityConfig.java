@@ -1,7 +1,6 @@
 package kr.co.springtricount.infra.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
