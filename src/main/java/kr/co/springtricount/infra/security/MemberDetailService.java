@@ -28,7 +28,7 @@ public class MemberDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         return memberRepository.findMemberByIdentity(username)
-                .map(member -> new User(member.getIdentity(), member.getPassword(), new ArrayList<>()))
+                .map(this::createUserDetails)
                 .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_MEMBER_NOT_FOUND));
     }
 
@@ -42,5 +42,14 @@ public class MemberDetailService implements UserDetailsService {
         }
 
         throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+    }
+
+    private UserDetails createUserDetails(Member member) {
+
+        return User.builder()
+                .username(member.getIdentity())
+                .password(member.getPassword())
+                .authorities(new ArrayList<>())
+                .build();
     }
 }
