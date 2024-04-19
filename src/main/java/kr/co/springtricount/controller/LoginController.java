@@ -15,7 +15,7 @@ public class LoginController {
 
         return ResponseFormat.successMessage(
                 ResponseStatus.SUCCESS_EXECUTE,
-                "main-page"
+                ResponseStatus.SUCCESS_EXECUTE.getMessage()
         );
     }
 
@@ -24,7 +24,7 @@ public class LoginController {
 
         return ResponseFormat.failureMessage(
                 ResponseStatus.FAIL_BAD_REQUEST,
-                "login-fail"
+                ResponseStatus.FAIL_BAD_REQUEST.getMessage()
         );
     }
 }
