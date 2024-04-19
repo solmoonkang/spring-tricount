@@ -24,8 +24,11 @@ public enum ResponseStatus {
 
 
     // AUTHENTICATION
-    FAIL_UNNECESSARY_LOGIN(HttpStatus.BAD_REQUEST, "❎ [ERROR] 이미 로그인된 상태입니다. 추가 로그인은 필요하지 않습니다."),
-    FAIL_UNNECESSARY_LOGOUT(HttpStatus.BAD_REQUEST, "❎ [ERROR] 로그아웃 상태입니다. 로그아웃을 시도할 필요가 없습니다."),
+    FAIL_UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "❎ [ERROR] 이 기능을 사용하기 위해서는 로그인이 필요합니다."),
+    FAIL_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "❎ [ERROR] 로그인 정보가 올바르지 않습니다. 아이디 또는 비밀번호를 확인해주세요."),
+    FAIL_INACTIVE_ACCOUNT(HttpStatus.UNAUTHORIZED, "❎ [ERROR] 비활성화된 계정입니다. 관리자에게 문의해주세요."),
+    FAIL_ACCOUNT_LOCKED(HttpStatus.UNAUTHORIZED, "❎ [ERROR] 계정이 잠겼습니다. 잠금 해제를 위해 관리자에게 문의해주세요."),
+    FAIL_CREDENTIALS_EXPIRED(HttpStatus.UNAUTHORIZED, "❎ [ERROR] 비밀번호가 만료되었습니다. 비밀번호를 변경해주세요."),
 
 
     // MEMBER
