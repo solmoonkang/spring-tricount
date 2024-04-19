@@ -7,12 +7,18 @@ import kr.co.springtricount.infra.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.io.PrintWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,11 +30,14 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf().disable();
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
-        httpSecurity.authorizeHttpRequests()
-                .requestMatchers("/api/v1/members/signup", "api/v1/fail").permitAll()
-                .requestMatchers("/api/v1/**").authenticated();
+        httpSecurity.authorizeHttpRequests(
+                authorizeHttpRequest -> authorizeHttpRequest
+                        .requestMatchers("/api/v1/members/signup").permitAll()
+                        .requestMatchers("/api/v1/fail").permitAll()
+                        .requestMatchers("/api/v1/**").authenticated()
+                );
 
         httpSecurity.formLogin().permitAll()
                 .usernameParameter("identity")
@@ -55,16 +64,20 @@ public class SecurityConfig {
     private AuthenticationEntryPoint authenticationEntryPoint() {
 
         return  (request, response, authException) -> {
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
             ResponseFormat<Void> responseFormat = ResponseFormat.failureMessage(
                     ResponseStatus.FAIL_UNAUTHORIZED,
-                    ResponseStatus.FAIL_UNAUTHORIZED.getMessage()
+                    ResponseStatus.FAIL_UNAUTHORIZED_ACCESS.getMessage()
             );
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            response.getWriter().write(objectMapper.writeValueAsString(responseFormat));
+            ResponseEntity<ResponseFormat<Void>> responseEntity =
+                    new ResponseEntity<>(responseFormat, HttpStatus.UNAUTHORIZED);
+
+            response.setStatus(responseEntity.getStatusCodeValue());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+            PrintWriter printWriter = response.getWriter();
+            printWriter.write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
+            printWriter.flush();
         };
     }
 }
