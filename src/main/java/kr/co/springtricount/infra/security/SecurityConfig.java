@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.PrintWriter;
 
@@ -25,6 +26,8 @@ import java.io.PrintWriter;
 public class SecurityConfig {
 
     private final MemberDetailService memberDetailService;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -50,6 +53,12 @@ public class SecurityConfig {
                 .authenticationEntryPoint(authenticationEntryPoint());
 
         httpSecurity.userDetailsService(memberDetailService);
+
+        // JWT 인증을 위해 직접 커스텀한 필터를 UsernamePasswordAuthenticationFilter 전에 실행한다.
+        httpSecurity.addFilterBefore(
+                new JwtAuthenticationFilter(jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class
+        );
 
         return httpSecurity.build();
     }
