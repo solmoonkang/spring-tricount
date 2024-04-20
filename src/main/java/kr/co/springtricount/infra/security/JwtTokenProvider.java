@@ -3,7 +3,6 @@ package kr.co.springtricount.infra.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +33,8 @@ public class JwtTokenProvider {
 
     private static final String COMMA = ",";
 
+    private static final String BLANK = "";
+
     private final Key key;
 
     // application.yml에서 설정한 secret값을 가져와서 Key에 저장한다.
@@ -58,14 +59,14 @@ public class JwtTokenProvider {
                 .setSubject(authentication.getName())
                 .claim(AUTHORITY_CLAIMS, authorities)
                 .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.RS256)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         // RefreshToken을 생성한다.
         Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRY_TIME);
         String refreshToken = Jwts.builder()
                 .setExpiration(refreshTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.RS256)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         return JwtToken.builder()
@@ -87,39 +88,26 @@ public class JwtTokenProvider {
 
         // Claims에서 권한 정보를 가져온다.
         Collection<? extends GrantedAuthority> authorities = Arrays
-                .stream(claims.get("auth").toString().split(","))
+                .stream(claims.get(AUTHORITY_CLAIMS).toString().split(COMMA))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
         // UserDetails 객체를 만들어서 Authentication을 반환한다.
         // UserDetails은 인터페이스이며, User는 UserDetails를 구현한 클래스이다.
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        UserDetails principal = new User(claims.getSubject(), BLANK, authorities);
 
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        return new UsernamePasswordAuthenticationToken(principal, BLANK, authorities);
     }
 
     // 토큰 정보를 검증하는 메서드이다.
     public boolean validateToken(String token) {
 
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
-            throw new UnauthorizedAccessException("잘못된 JWT 서명입니다.");
-        } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
-            throw new UnauthorizedAccessException("JWT 토큰이 만료되었습니다.");
-        } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
-            throw new UnauthorizedAccessException("지원하지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
-            throw new UnauthorizedAccessException("JWT 토큰이 잘못되었습니다.");
-        }
+        Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
+
+        return true;
     }
 
     // AccessToken
