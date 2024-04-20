@@ -2,7 +2,7 @@ package kr.co.springtricount.controller;
 
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.dto.SignupDTO;
+import kr.co.springtricount.service.dto.SignupReqDTO;
 import kr.co.springtricount.service.service.MemberService;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +19,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseFormat<Void> createMember(@Validated @RequestBody SignupDTO signupDTO) {
+    public ResponseFormat<Void> createMember(@Validated @RequestBody SignupReqDTO signupReqDTO) {
 
-        memberService.createMember(signupDTO);
+        memberService.createMember(signupReqDTO);
 
         return ResponseFormat.successMessage(ResponseStatus.SUCCESS_CREATED);
     }

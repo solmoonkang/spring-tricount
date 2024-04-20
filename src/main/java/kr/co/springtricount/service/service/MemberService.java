@@ -6,7 +6,7 @@ import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
-import kr.co.springtricount.service.dto.SignupDTO;
+import kr.co.springtricount.service.dto.SignupReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void createMember(SignupDTO signupDTO) {
+    public void createMember(SignupReqDTO signupReqDTO) {
 
-        checkIdentityExists(signupDTO.identity());
+        checkIdentityExists(signupReqDTO.identity());
 
         final Member member = Member.createMember(
-                signupDTO,
-                passwordEncoder.encode(signupDTO.password())
+                signupReqDTO,
+                passwordEncoder.encode(signupReqDTO.password())
         );
 
         memberRepository.save(member);

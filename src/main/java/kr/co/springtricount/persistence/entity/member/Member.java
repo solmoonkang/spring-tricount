@@ -2,7 +2,7 @@ package kr.co.springtricount.persistence.entity.member;
 
 import jakarta.persistence.*;
 import kr.co.springtricount.persistence.entity.BaseEntity;
-import kr.co.springtricount.service.dto.SignupDTO;
+import kr.co.springtricount.service.dto.SignupReqDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,13 +36,13 @@ public class Member extends BaseEntity {
         this.name = name;
     }
 
-    public static Member createMember(SignupDTO signupDTO,
+    public static Member createMember(SignupReqDTO signupReqDTO,
                                       String encodePassword) {
 
         return Member.builder()
-                .identity(signupDTO.identity())
+                .identity(signupReqDTO.identity())
                 .password(encodePassword)
-                .name(signupDTO.name())
+                .name(signupReqDTO.name())
                 .build();
     }
 }
