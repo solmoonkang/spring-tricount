@@ -41,14 +41,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/**").authenticated()
                 );
 
-        httpSecurity.formLogin().permitAll()
-                .usernameParameter("identity")
-                .defaultSuccessUrl("/api/v1")
-                .failureUrl("/api/v1/fail");
-
-        httpSecurity.logout()
-                .logoutSuccessUrl("/login");
-
         httpSecurity.exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint());
 
