@@ -3,6 +3,7 @@ package kr.co.springtricount.infra.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,16 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
+    private static final long ACCESS_TOKEN_EXPIRY_TIME = 86400000;
+
+    private static final long REFRESH_TOKEN_EXPIRY_TIME = 2592000000L;
+
+    private static final String AUTHORITY_CLAIMS = "auth";
+
+    private static final String GRANT_TYPE = "Bearer";
+
+    private static final String COMMA = ",";
+
     private final Key key;
 
     // application.yml에서 설정한 secret값을 가져와서 Key에 저장한다.
@@ -37,27 +48,28 @@ public class JwtTokenProvider {
         // 권한을 가져온다.
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(COMMA));
 
         long now = (new Date()).getTime();
 
         // AccessToken을 생성한다.
-        Date accessTokenExpiresIn = new Date(now + 86400000);
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRY_TIME);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
+                .claim(AUTHORITY_CLAIMS, authorities)
                 .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.RS256)
                 .compact();
 
         // RefreshToken을 생성한다.
+        Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRY_TIME);
         String refreshToken = Jwts.builder()
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(refreshTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.RS256)
                 .compact();
 
         return JwtToken.builder()
-                .grantType("Bearer")
+                .grantType(GRANT_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -69,7 +81,7 @@ public class JwtTokenProvider {
         // JWT 토큰을 복호화한다.
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("auth") == null) {
+        if (claims.get(AUTHORITY_CLAIMS) == null) {
             throw new RuntimeException("[❎ERROR] 권한 정보가 없는 토큰입니다.");
         }
 
@@ -97,14 +109,17 @@ public class JwtTokenProvider {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
+            throw new UnauthorizedAccessException("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
+            throw new UnauthorizedAccessException("JWT 토큰이 만료되었습니다.");
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
+            throw new UnauthorizedAccessException("지원하지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
+            throw new UnauthorizedAccessException("JWT 토큰이 잘못되었습니다.");
         }
-        return false;
     }
 
     // AccessToken
