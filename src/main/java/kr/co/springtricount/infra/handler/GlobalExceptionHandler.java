@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidRequestException.class)
     protected ResponseEntity<ResponseFormat<Void>> handleInvalidRequestException(InvalidRequestException e) {
-        log.warn("INVALID REQUEST: ", e);
+        log.warn("INVALID REQUEST EXCEPTION OCCURRED: {}", e.getMessage());
 
         ResponseFormat<Void> responseFormat =
                 ResponseFormat.failureMessage(ResponseStatus.FAIL_BAD_REQUEST, e.getMessage());
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedAccessException.class)
     protected ResponseEntity<ResponseFormat<Void>> handleAuthenticationException(UnauthorizedAccessException e) {
-        log.warn("AUTHENTICATION REQUEST: ", e);
+        log.warn("UNAUTHORIZED ACCESS EXCEPTION DETECTED: {}", e.getMessage());
 
         ResponseFormat<Void> responseFormat =
                 ResponseFormat.failureMessage(ResponseStatus.FAIL_UNAUTHORIZED, e.getMessage());
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     protected ResponseEntity<ResponseFormat<Void>> handleNotFoundException(NotFoundException e) {
-        log.warn("NOT FOUND REQUEST: ", e);
+        log.warn("NOT FOUND EXCEPTION ENCOUNTERED: {}", e.getMessage());
 
         ResponseFormat<Void> responseFormat =
                 ResponseFormat.failureMessage(ResponseStatus.FAIL_NOT_FOUND, e.getMessage());
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicatedException.class)
     protected ResponseEntity<ResponseFormat<Void>> handleDuplicatedException(DuplicatedException e) {
-        log.warn("DUPLICATED REQUEST: ", e);
+        log.warn("DUPLICATED EXCEPTION RAISED: {}", e.getMessage());
 
         ResponseFormat<Void> responseFormat =
                 ResponseFormat.failureMessage(ResponseStatus.FAIL_DUPLICATED, e.getMessage());
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessLogicException.class)
     protected ResponseEntity<ResponseFormat<Void>> handleBusinessLogicException(BusinessLogicException e) {
-        log.warn("RUNTIME EXCEPTION: ", e);
+        log.warn("BUSINESS LOGIC EXCEPTION OCCURRED: {}", e.getMessage());
 
         ResponseFormat<Void> responseFormat =
                 ResponseFormat.failureMessage(ResponseStatus.FAIL_SERVER_ERROR, e.getMessage());
