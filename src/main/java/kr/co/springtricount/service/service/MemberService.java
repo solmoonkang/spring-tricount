@@ -6,7 +6,7 @@ import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
-import kr.co.springtricount.service.dto.SignupReqDTO;
+import kr.co.springtricount.service.dto.request.SignupReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

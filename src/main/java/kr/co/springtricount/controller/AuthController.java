@@ -4,7 +4,7 @@ import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.infra.security.JwtToken;
 import kr.co.springtricount.infra.security.JwtTokenProvider;
-import kr.co.springtricount.service.dto.LoginReqDTO;
+import kr.co.springtricount.service.dto.request.LoginReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

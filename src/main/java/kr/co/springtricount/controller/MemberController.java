@@ -2,7 +2,7 @@ package kr.co.springtricount.controller;
 
 import kr.co.springtricount.infra.response.ResponseFormat;
 import kr.co.springtricount.infra.response.ResponseStatus;
-import kr.co.springtricount.service.dto.SignupReqDTO;
+import kr.co.springtricount.service.dto.request.SignupReqDTO;
 import kr.co.springtricount.service.service.MemberService;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import lombok.RequiredArgsConstructor;
