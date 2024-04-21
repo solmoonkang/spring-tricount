@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.PrintWriter;
@@ -28,6 +29,8 @@ public class SecurityConfig {
     private final MemberDetailService memberDetailService;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final OAuth2UserService oAuth2UserService;
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -52,6 +55,13 @@ public class SecurityConfig {
                 UsernamePasswordAuthenticationFilter.class
         );
 
+        httpSecurity.oauth2Login(oauth2Configurer -> oauth2Configurer
+                .loginPage("/api/v1/auth/login")
+                .successHandler(authenticationSuccessHandler())
+                .userInfoEndpoint()
+                .userService(oAuth2UserService)
+        );
+
         return httpSecurity.build();
     }
 
@@ -59,6 +69,27 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+
+        return (request, response, authentication) -> {
+            ResponseFormat<Void> responseFormat = ResponseFormat.successMessage(
+                    ResponseStatus.SUCCESS_EXECUTE,
+                    ResponseStatus.SUCCESS_EXECUTE.getMessage()
+            );
+
+            ResponseEntity<ResponseFormat<Void>> responseEntity =
+                    new ResponseEntity<>(responseFormat, HttpStatus.OK);
+
+            response.setStatus(responseEntity.getStatusCodeValue());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+            PrintWriter printWriter = response.getWriter();
+            printWriter.write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
+            printWriter.flush();
+        };
     }
 
     private AuthenticationEntryPoint authenticationEntryPoint() {
