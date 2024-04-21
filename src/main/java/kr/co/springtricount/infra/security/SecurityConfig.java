@@ -14,12 +14,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @EnableWebSecurity
@@ -75,19 +77,18 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
 
         return (request, response, authentication) -> {
-            ResponseFormat<Void> responseFormat = ResponseFormat.successMessage(
-                    ResponseStatus.SUCCESS_EXECUTE,
-                    ResponseStatus.SUCCESS_EXECUTE.getMessage()
-            );
+            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
-            ResponseEntity<ResponseFormat<Void>> responseEntity =
-                    new ResponseEntity<>(responseFormat, HttpStatus.OK);
+            String id = defaultOAuth2User.getAttributes().get("identity").toString();
+            String body = """
+                    {"id":"%s"}
+                    """.formatted(id);
 
-            response.setStatus(responseEntity.getStatusCodeValue());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
             PrintWriter printWriter = response.getWriter();
-            printWriter.write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
+            printWriter.println(body);
             printWriter.flush();
         };
     }
