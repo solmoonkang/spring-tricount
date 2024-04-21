@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    private static final long ACCESS_TOKEN_EXPIRY_TIME = 86400000;
+    private static final long ACCESS_TOKEN_EXPIRY_TIME = 1000 * 60 * 30L;
 
-    private static final long REFRESH_TOKEN_EXPIRY_TIME = 2592000000L;
+    private static final long REFRESH_TOKEN_EXPIRY_TIME = 1000 * 60 * 60L * 24 * 7;
 
     private static final String AUTHORITY_CLAIMS = "auth";
 
