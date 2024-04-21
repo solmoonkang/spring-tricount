@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -37,8 +39,19 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        // REST API 설정
+        httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .headers(header -> header.frameOptions(
+                        HeadersConfigurer.FrameOptionsConfig::disable).disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        // Request 인증 및 인가 설정
         httpSecurity.authorizeHttpRequests(
                 authorizeHttpRequest -> authorizeHttpRequest
                         .requestMatchers("/api/v1/members/signup").permitAll()
@@ -46,23 +59,23 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/**").authenticated()
                 );
 
-        httpSecurity.exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint());
-
-        httpSecurity.userDetailsService(memberDetailService);
-
-        // JWT 인증을 위해 직접 커스텀한 필터를 UsernamePasswordAuthenticationFilter 전에 실행한다.
-        httpSecurity.addFilterBefore(
-                new JwtAuthenticationFilter(jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class
-        );
-
+        // OAuth2 설정
         httpSecurity.oauth2Login(oauth2Configurer -> oauth2Configurer
                 .loginPage("/api/v1/auth/login")
                 .successHandler(authenticationSuccessHandler())
                 .userInfoEndpoint()
-                .userService(oAuth2UserService)
-        );
+                .userService(oAuth2UserService));
+
+        // JWT 인증을 위해 직접 커스텀한 필터를 UsernamePasswordAuthenticationFilter 전에 실행한다.
+        httpSecurity.addFilterBefore(
+                new JwtAuthenticationFilter(jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class);
+
+        // 인증 예외 핸들링
+        httpSecurity.exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint());
+
+        httpSecurity.userDetailsService(memberDetailService);
 
         return httpSecurity.build();
     }
