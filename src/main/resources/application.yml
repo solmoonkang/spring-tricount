@@ -27,16 +27,20 @@ spring:
     host: localhost
     port: 6379
 
-# OAuth2 및 Kakao
+# Security - OAuth2
 security:
   oauth2:
     client:
+
+      # Kakao Provider
       provider:
         kakao:
           authorization-uri: https://kauth.kakao.com/oauth/authorize
           token-uri: https://kauth.kakao.com/oauth/token
           user-info-uri: https://kapi.kakao.com/v2/user/me
           user-name-attribute: id
+
+      # Kakao Registration
       registration:
         kakao:
           client-id: c2ebef906e5e1908b1ac4ab5bd1c961b
@@ -50,6 +54,6 @@ security:
             - profile_image
             - account_email
 
-# JWT
+# Security - JWT
 jwt:
   secret: 16a913d84682cda222300433e04d6ecc48af40b7f10300a4909dfe27bee8d540
