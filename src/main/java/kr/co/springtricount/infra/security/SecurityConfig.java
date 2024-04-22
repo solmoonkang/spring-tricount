@@ -2,6 +2,7 @@ package kr.co.springtricount.infra.security;
 
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,11 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -36,10 +41,10 @@ public class SecurityConfig {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
-	private final OAuth2MemberService oAuth2MemberService;
-
 	@Bean
-	protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+	protected SecurityFilterChain securityFilterChain(
+		HttpSecurity httpSecurity,
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2MemberService) throws Exception {
 
 		// REST API 설정
 		httpSecurity
@@ -65,8 +70,7 @@ public class SecurityConfig {
 		httpSecurity.oauth2Login(oauth2Configurer -> oauth2Configurer
 			.loginPage("/api/v1/auth/login")
 			.successHandler(authenticationSuccessHandler())
-			.userInfoEndpoint()
-			.userService(oAuth2MemberService));
+			.userInfoEndpoint(userInfo -> userInfo.userService(oAuth2MemberService)));
 
 		// JWT 인증을 위해 직접 커스텀한 필터를 UsernamePasswordAuthenticationFilter 전에 실행한다.
 		httpSecurity.addFilterBefore(
@@ -105,6 +109,37 @@ public class SecurityConfig {
 			PrintWriter printWriter = response.getWriter();
 			printWriter.println(body);
 			printWriter.flush();
+		};
+	}
+
+	@Bean
+	public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2MemberService(
+		UserAccountService userAccountService,
+		PasswordEncoder passwordEncoder) {
+
+		final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+
+		return userRequest -> {
+			OAuth2User oAuth2User = delegate.loadUser(userRequest);
+
+			KakaoOAuth2ResDTO kakaoOAuth2ResDTO = KakaoOAuth2ResDTO.from(oAuth2User.getAttributes());
+
+			String registrationId = userRequest.getClientRegistration().getRegistrationId();
+			String providerId = String.valueOf(kakaoOAuth2ResDTO.id());
+			String username = registrationId + "_" + providerId;
+			String dummyPassword = passwordEncoder.encode("{bcrypt}" + UUID.randomUUID());
+
+			return userAccountService.searchUser(username)
+				.map(PrincipalDetails::from)
+				.orElseGet(() -> PrincipalDetails.from(
+					userAccountService.saveUser(
+						username,
+						dummyPassword,
+						kakaoOAuth2ResDTO.email(),
+						kakaoOAuth2ResDTO.nickname(),
+						null
+					)
+				));
 		};
 	}
 
