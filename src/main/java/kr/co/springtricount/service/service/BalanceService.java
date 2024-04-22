@@ -1,5 +1,18 @@
 package kr.co.springtricount.service.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.service.dto.response.BalanceResDTO;
@@ -7,139 +20,134 @@ import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.With;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class BalanceService {
 
-    public List<BalanceResDTO> findBalanceBySettlement(SettlementResDTO settlement) {
+	private static List<Balance> getMemberBigDecimals(
+		Map<MemberResDTO, BigDecimal> memberAmountMap,
+		Predicate<Map.Entry<MemberResDTO, BigDecimal>> entryPredicate,
+		Comparator<Balance> comparing) {
 
-        if (settlement == null) {
-            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
-        }
+		return memberAmountMap.entrySet().stream()
+			.filter(entryPredicate)
+			.map(entry -> new Balance(entry.getKey(), entry.getValue()))
+			.sorted(comparing)
+			.toList();
+	}
 
-        List<ExpenseResDTO> expenses = settlement.expenses();
-        List<MemberResDTO> participants = settlement.participants();
+	public List<BalanceResDTO> findBalanceBySettlement(SettlementResDTO settlement) {
 
-        BigDecimal totalAmount = getTotalAmount(expenses);
-        BigDecimal averageAmount = totalAmount.divide(BigDecimal.valueOf(participants.size()), RoundingMode.DOWN);
+		if (settlement == null) {
+			throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
+		}
 
-        Map<MemberResDTO, BigDecimal> memberExpenseMap = getMemberExpenseMap(expenses);
-        Map<MemberResDTO, BigDecimal> memberAmountMap = getMemberAmountMap(participants, memberExpenseMap, averageAmount);
+		List<ExpenseResDTO> expenses = settlement.expenses();
+		List<MemberResDTO> participants = settlement.participants();
 
-        List<Balance> receiver = getMemberBigDecimals(
-                memberAmountMap,
-                entry -> entry.getValue().compareTo(BigDecimal.ZERO) > 0,
-                Comparator.comparing(Balance::amount));
+		BigDecimal totalAmount = getTotalAmount(expenses);
+		BigDecimal averageAmount = totalAmount.divide(BigDecimal.valueOf(participants.size()), RoundingMode.DOWN);
 
-        List<Balance> sender = getMemberBigDecimals(
-                memberAmountMap,
-                entry -> entry.getValue().compareTo(BigDecimal.ZERO) < 0,
-                Comparator.comparing(Balance::amount).reversed());
+		Map<MemberResDTO, BigDecimal> memberExpenseMap = getMemberExpenseMap(expenses);
+		Map<MemberResDTO, BigDecimal> memberAmountMap = getMemberAmountMap(participants, memberExpenseMap,
+			averageAmount);
 
-        return getBalances(receiver, sender);
-    }
+		List<Balance> receiver = getMemberBigDecimals(
+			memberAmountMap,
+			entry -> entry.getValue().compareTo(BigDecimal.ZERO) > 0,
+			Comparator.comparing(Balance::amount));
 
-    private List<BalanceResDTO> getBalances(List<Balance> receiver, List<Balance> sender) {
+		List<Balance> sender = getMemberBigDecimals(
+			memberAmountMap,
+			entry -> entry.getValue().compareTo(BigDecimal.ZERO) < 0,
+			Comparator.comparing(Balance::amount).reversed());
 
-        int receiverIndex = 0;
-        int senderIndex = 0;
+		return getBalances(receiver, sender);
+	}
 
-        List<BalanceResDTO> balances = new ArrayList<>();
+	private List<BalanceResDTO> getBalances(List<Balance> receiver, List<Balance> sender) {
 
-        if (receiver.isEmpty() || sender.isEmpty()) {
+		int receiverIndex = 0;
+		int senderIndex = 0;
 
-            return balances;
-        }
+		List<BalanceResDTO> balances = new ArrayList<>();
 
-        Balance receiverMember = receiver.get(receiverIndex);
-        Balance senderMember = sender.get(senderIndex);
+		if (receiver.isEmpty() || sender.isEmpty()) {
 
-        while (true) {
-            BigDecimal receiverAmount = receiverMember.amount().abs();
-            BigDecimal senderAmount = senderMember.amount().abs();
+			return balances;
+		}
 
-            BigDecimal minAmount = receiverAmount.min(senderAmount);
+		Balance receiverMember = receiver.get(receiverIndex);
+		Balance senderMember = sender.get(senderIndex);
 
-            receiverMember = receiverMember.withAmount(receiverMember.amount().subtract(minAmount));
-            senderMember = senderMember.withAmount(senderMember.amount().add(minAmount));
+		while (true) {
+			BigDecimal receiverAmount = receiverMember.amount().abs();
+			BigDecimal senderAmount = senderMember.amount().abs();
 
-            balances.add(
-                    new BalanceResDTO(
-                            senderMember.member().id(),
-                            senderMember.member().name(),
-                            minAmount.abs().longValue(),
-                            receiverMember.member().id(),
-                            receiverMember.member().name()));
+			BigDecimal minAmount = receiverAmount.min(senderAmount);
 
-            if (receiverMember.amount().compareTo(BigDecimal.ZERO) == 0) {
-                receiverIndex++;
-                if (receiverIndex >= receiver.size()) break;
-                receiverMember = receiver.get(receiverIndex);
-            }
+			receiverMember = receiverMember.withAmount(receiverMember.amount().subtract(minAmount));
+			senderMember = senderMember.withAmount(senderMember.amount().add(minAmount));
 
-            if (senderMember.amount().compareTo(BigDecimal.ZERO) == 0) {
-                senderIndex++;
-                if (senderIndex >= sender.size()) break;
-                senderMember = receiver.get(senderIndex);
-            }
-        }
+			balances.add(
+				new BalanceResDTO(
+					senderMember.member().id(),
+					senderMember.member().name(),
+					minAmount.abs().longValue(),
+					receiverMember.member().id(),
+					receiverMember.member().name()));
 
-        return balances;
-    }
+			if (receiverMember.amount().compareTo(BigDecimal.ZERO) == 0) {
+				receiverIndex++;
+				if (receiverIndex >= receiver.size())
+					break;
+				receiverMember = receiver.get(receiverIndex);
+			}
 
-    private static List<Balance> getMemberBigDecimals(
-            Map<MemberResDTO, BigDecimal> memberAmountMap,
-            Predicate<Map.Entry<MemberResDTO, BigDecimal>> entryPredicate,
-            Comparator<Balance> comparing) {
+			if (senderMember.amount().compareTo(BigDecimal.ZERO) == 0) {
+				senderIndex++;
+				if (senderIndex >= sender.size())
+					break;
+				senderMember = receiver.get(senderIndex);
+			}
+		}
 
-        return memberAmountMap.entrySet().stream()
-                .filter(entryPredicate)
-                .map(entry -> new Balance(entry.getKey(), entry.getValue()))
-                .sorted(comparing)
-                .toList();
-    }
+		return balances;
+	}
 
-    private Map<MemberResDTO, BigDecimal> getMemberAmountMap(
-            List<MemberResDTO> participants,
-            Map<MemberResDTO, BigDecimal> memberExpenseMap,
-            BigDecimal averageAmount) {
+	private Map<MemberResDTO, BigDecimal> getMemberAmountMap(
+		List<MemberResDTO> participants,
+		Map<MemberResDTO, BigDecimal> memberExpenseMap,
+		BigDecimal averageAmount) {
 
-        return participants.stream()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        member -> memberExpenseMap.getOrDefault(member, BigDecimal.ZERO).subtract(averageAmount)
-                        ));
-    }
+		return participants.stream()
+			.collect(Collectors.toMap(
+				Function.identity(),
+				member -> memberExpenseMap.getOrDefault(member, BigDecimal.ZERO).subtract(averageAmount)
+			));
+	}
 
-    private Map<MemberResDTO, BigDecimal> getMemberExpenseMap(List<ExpenseResDTO> expenses) {
+	private Map<MemberResDTO, BigDecimal> getMemberExpenseMap(List<ExpenseResDTO> expenses) {
 
-        return expenses.stream()
-                .collect(Collectors.groupingBy(
-                        ExpenseResDTO::payerMember,
-                        Collectors.reducing(BigDecimal.ZERO, ExpenseResDTO::amount, BigDecimal::add)
-                        ));
-    }
+		return expenses.stream()
+			.collect(Collectors.groupingBy(
+				ExpenseResDTO::payerMember,
+				Collectors.reducing(BigDecimal.ZERO, ExpenseResDTO::amount, BigDecimal::add)
+			));
+	}
 
-    private BigDecimal getTotalAmount(List<ExpenseResDTO> expenses) {
+	private BigDecimal getTotalAmount(List<ExpenseResDTO> expenses) {
 
-        return expenses.stream()
-                .map(ExpenseResDTO::amount)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
-    }
+		return expenses.stream()
+			.map(ExpenseResDTO::amount)
+			.reduce(BigDecimal::add)
+			.orElse(BigDecimal.ZERO);
+	}
 
-    public record Balance(
-            MemberResDTO member,
-            @With BigDecimal amount
-    ) { }
+	public record Balance(
+		MemberResDTO member,
+		@With BigDecimal amount
+	) {
+	}
 }

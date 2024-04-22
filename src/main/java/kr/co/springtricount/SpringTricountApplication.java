@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class SpringTricountApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringTricountApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(SpringTricountApplication.class, args);
+	}
 
 }

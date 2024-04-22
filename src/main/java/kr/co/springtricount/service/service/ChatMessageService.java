@@ -1,5 +1,11 @@
 package kr.co.springtricount.service.service;
 
+import java.util.List;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
 import kr.co.springtricount.infra.handler.WebSocketChatHandler;
@@ -15,93 +21,87 @@ import kr.co.springtricount.persistence.repository.ChatRoomRepository;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ChatMessageService {
 
-    private final ChatRoomRepository chatRoomRepository;
+	private final ChatRoomRepository chatRoomRepository;
 
-    private final ChatMessageRepository chatMessageRepository;
+	private final ChatMessageRepository chatMessageRepository;
 
-    private final WebSocketChatHandler webSocketChatHandler;
+	private final WebSocketChatHandler webSocketChatHandler;
 
-    private final MemberDetailService memberDetailService;
+	private final MemberDetailService memberDetailService;
 
-    private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
 
-    private final RedisUtils redisUtils;
+	private final RedisUtils redisUtils;
 
-    @Transactional
-    public void sendAndSaveChatMessage(Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
+	@Transactional
+	public void sendAndSaveChatMessage(Long chatRoomId, ChatMessageReqDTO chatMessageReqDTO) {
 
-        final Member findMember = memberDetailService.getLoggedInMember();
+		final Member findMember = memberDetailService.getLoggedInMember();
 
-        final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
+		final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
-        checkAccessPermission(findMember, findChatRoom);
+		checkAccessPermission(findMember, findChatRoom);
 
-        final ChatMessage chatMessage = ChatMessage.createChatMessage(findMember, findChatRoom, chatMessageReqDTO);
+		final ChatMessage chatMessage = ChatMessage.createChatMessage(findMember, findChatRoom, chatMessageReqDTO);
 
-        chatMessageRepository.save(chatMessage);
+		chatMessageRepository.save(chatMessage);
 
-        sendChatMessageViaWebSocket(chatRoomId, chatMessage);
+		sendChatMessageViaWebSocket(chatRoomId, chatMessage);
 
-        updateChatMessageInRedis(chatRoomId, chatMessage);
-    }
+		updateChatMessageInRedis(chatRoomId, chatMessage);
+	}
 
-    public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(Long chatRoomId) {
+	public List<ChatMessageResDTO> findAllChatMessagesByChatRoomId(Long chatRoomId) {
 
-        final Member findMember = memberDetailService.getLoggedInMember();
+		final Member findMember = memberDetailService.getLoggedInMember();
 
-        final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
+		final ChatRoom findChatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new NotFoundException(ResponseStatus.FAIL_CHAT_ROOM_NOT_FOUND));
 
-        checkAccessPermission(findMember, findChatRoom);
+		checkAccessPermission(findMember, findChatRoom);
 
-        final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
+		final List<ChatMessage> chatMessages = chatMessageRepository.findChatMessagesByChatRoomId(chatRoomId);
 
-        return chatMessages.stream()
-                .map(this::convertToChatMessageResDTO)
-                .toList();
-    }
+		return chatMessages.stream()
+			.map(this::convertToChatMessageResDTO)
+			.toList();
+	}
 
-    private ChatMessageResDTO convertToChatMessageResDTO(ChatMessage chatMessage) {
+	private ChatMessageResDTO convertToChatMessageResDTO(ChatMessage chatMessage) {
 
-        return new ChatMessageResDTO(
-                chatMessage.getChatRoom().getId(),
-                chatMessage.getSender().getName(),
-                chatMessage.getMessage()
-        );
-    }
+		return new ChatMessageResDTO(
+			chatMessage.getChatRoom().getId(),
+			chatMessage.getSender().getName(),
+			chatMessage.getMessage()
+		);
+	}
 
-    private void checkAccessPermission(Member member, ChatRoom chatRoom) {
+	private void checkAccessPermission(Member member, ChatRoom chatRoom) {
 
-        if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
-            throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
-        }
-    }
+		if (!(chatRoom.getSender().equals(member) || chatRoom.getReceiver().equals(member))) {
+			throw new UnauthorizedAccessException(ResponseStatus.FAIL_UNAUTHORIZED);
+		}
+	}
 
-    private void updateChatMessageInRedis(Long chatRoomId, ChatMessage chatMessage) {
+	private void updateChatMessageInRedis(Long chatRoomId, ChatMessage chatMessage) {
 
-        final String redisKey = RedisKeyUtils.chatRoomKey(chatRoomId);
+		final String redisKey = RedisKeyUtils.chatRoomKey(chatRoomId);
 
-        redisUtils.addChatMessageToRedisList(redisKey, convertToChatMessageResDTO(chatMessage));
-    }
+		redisUtils.addChatMessageToRedisList(redisKey, convertToChatMessageResDTO(chatMessage));
+	}
 
-    private void sendChatMessageViaWebSocket(Long chatRoomId, ChatMessage chatMessage) {
+	private void sendChatMessageViaWebSocket(Long chatRoomId, ChatMessage chatMessage) {
 
-        webSocketChatHandler.sendMessageToChatRoom(
-                chatRoomId,
-                convertToChatMessageResDTO(chatMessage)
-        );
-    }
+		webSocketChatHandler.sendMessageToChatRoom(
+			chatRoomId,
+			convertToChatMessageResDTO(chatMessage)
+		);
+	}
 }

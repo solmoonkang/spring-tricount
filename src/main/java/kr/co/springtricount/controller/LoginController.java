@@ -1,30 +1,31 @@
 package kr.co.springtricount.controller;
 
-import kr.co.springtricount.infra.response.ResponseFormat;
-import kr.co.springtricount.infra.response.ResponseStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import kr.co.springtricount.infra.response.ResponseFormat;
+import kr.co.springtricount.infra.response.ResponseStatus;
 
 @RestController
 @RequestMapping("/api/v1")
 public class LoginController {
 
-    @GetMapping()
-    public ResponseFormat<Void> mainPage() {
+	@GetMapping()
+	public ResponseFormat<Void> mainPage() {
 
-        return ResponseFormat.successMessage(
-                ResponseStatus.SUCCESS_EXECUTE,
-                ResponseStatus.SUCCESS_EXECUTE.getMessage()
-        );
-    }
+		return ResponseFormat.successMessage(
+			ResponseStatus.SUCCESS_EXECUTE,
+			ResponseStatus.SUCCESS_EXECUTE.getMessage()
+		);
+	}
 
-    @GetMapping("/fail")
-    public ResponseFormat<Void> fail() {
+	@GetMapping("/fail")
+	public ResponseFormat<Void> fail() {
 
-        return ResponseFormat.failureMessage(
-                ResponseStatus.FAIL_BAD_REQUEST,
-                ResponseStatus.FAIL_BAD_REQUEST.getMessage()
-        );
-    }
+		return ResponseFormat.failureMessage(
+			ResponseStatus.FAIL_BAD_REQUEST,
+			ResponseStatus.FAIL_BAD_REQUEST.getMessage()
+		);
+	}
 }

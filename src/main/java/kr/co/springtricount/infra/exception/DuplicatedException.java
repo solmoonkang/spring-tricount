@@ -4,11 +4,11 @@ import kr.co.springtricount.infra.response.ResponseStatus;
 
 public class DuplicatedException extends BusinessLogicException {
 
-    public DuplicatedException(ResponseStatus responseStatus) {
-        super(responseStatus);
-    }
+	public DuplicatedException(ResponseStatus responseStatus) {
+		super(responseStatus);
+	}
 
-    public DuplicatedException(String message) {
-        super(message);
-    }
+	public DuplicatedException(String message) {
+		super(message);
+	}
 }

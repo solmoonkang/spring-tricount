@@ -19,19 +19,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
 
-        registry.enableSimpleBroker("/sub");                    // 해당 주소를 구독하고 있는 클라이언트에게 메시지 전달
-        registry.setApplicationDestinationPrefixes("/pub");     // 클라이언트에서 보낸 메시지를 받을 prefix
-    }
+		registry.enableSimpleBroker("/sub");                    // 해당 주소를 구독하고 있는 클라이언트에게 메시지 전달
+		registry.setApplicationDestinationPrefixes("/pub");     // 클라이언트에서 보낸 메시지를 받을 prefix
+	}
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
+	@Override
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
 
-        registry.addEndpoint("/ws-stomp")   // SockJS 연결 주소
-                .withSockJS();              // 버전이 낮은 브라우저에서도 적용이 가능
+		registry.addEndpoint("/ws-stomp")   // SockJS 연결 주소
+			.withSockJS();              // 버전이 낮은 브라우저에서도 적용이 가능
 
-        // 주소: "ws://localhost:8080/ws-stomp"
-    }
+		// 주소: "ws://localhost:8080/ws-stomp"
+	}
 }

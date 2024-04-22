@@ -1,10 +1,14 @@
 package kr.co.springtricount.persistence.entity.chat;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import kr.co.springtricount.persistence.entity.BaseEntity;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
-import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,40 +18,40 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "tbl_chat_messages")
 @AttributeOverride(
-        name = "id",
-        column = @Column(name = "chat_message_id", length = 4)
+	name = "id",
+	column = @Column(name = "chat_message_id", length = 4)
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessage extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
+	@ManyToOne
+	@JoinColumn(name = "chat_room_id")
+	private ChatRoom chatRoom;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id")
-    private Member sender;
+	@ManyToOne
+	@JoinColumn(name = "sender_id")
+	private Member sender;
 
-    @Column(name = "message")
-    private String message;
+	@Column(name = "message")
+	private String message;
 
-    @Builder
-    public ChatMessage(ChatRoom chatRoom,
-                       Member sender,
-                       String message) {
-        this.chatRoom = chatRoom;
-        this.sender = sender;
-        this.message = message;
-    }
+	@Builder
+	public ChatMessage(ChatRoom chatRoom,
+		Member sender,
+		String message) {
+		this.chatRoom = chatRoom;
+		this.sender = sender;
+		this.message = message;
+	}
 
-    public static ChatMessage createChatMessage(Member sender,
-                                                  ChatRoom chatRoom,
-                                                  ChatMessageReqDTO chatMessageReqDTO) {
+	public static ChatMessage createChatMessage(Member sender,
+		ChatRoom chatRoom,
+		ChatMessageReqDTO chatMessageReqDTO) {
 
-        return ChatMessage.builder()
-                .sender(sender)
-                .chatRoom(chatRoom)
-                .message(chatMessageReqDTO.message())
-                .build();
-    }
+		return ChatMessage.builder()
+			.sender(sender)
+			.chatRoom(chatRoom)
+			.message(chatMessageReqDTO.message())
+			.build();
+	}
 }

@@ -1,5 +1,11 @@
 package kr.co.springtricount.service.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.co.springtricount.infra.exception.NotFoundException;
 import kr.co.springtricount.infra.response.ResponseStatus;
 import kr.co.springtricount.infra.security.MemberDetailService;
@@ -14,100 +20,95 @@ import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SettlementService {
 
-    private final SettlementRepository settlementRepository;
+	private final SettlementRepository settlementRepository;
 
-    private final MemberSettlementRepository memberSettlementRepository;
+	private final MemberSettlementRepository memberSettlementRepository;
 
-    private final ExpenseService expenseService;
+	private final ExpenseService expenseService;
 
-    private final SettlementSearchRepository settlementSearchRepository;
+	private final SettlementSearchRepository settlementSearchRepository;
 
-    private final MemberDetailService memberDetailService;
+	private final MemberDetailService memberDetailService;
 
-    @Transactional
-    public void createSettlement(SettlementReqDTO settlementReqDTO) {
+	@Transactional
+	public void createSettlement(SettlementReqDTO settlementReqDTO) {
 
-        final Member loginMember = memberDetailService.getLoggedInMember();
+		final Member loginMember = memberDetailService.getLoggedInMember();
 
-        final Settlement settlement = Settlement.createSettlement(settlementReqDTO);
+		final Settlement settlement = Settlement.createSettlement(settlementReqDTO);
 
-        final MemberSettlement memberSettlement =
-                MemberSettlement.createMemberSettlement(loginMember, settlement);
+		final MemberSettlement memberSettlement =
+			MemberSettlement.createMemberSettlement(loginMember, settlement);
 
-        settlementRepository.save(settlement);
+		settlementRepository.save(settlement);
 
-        memberSettlementRepository.save(memberSettlement);
-    }
+		memberSettlementRepository.save(memberSettlement);
+	}
 
-    public SettlementResDTO findSettlementById(Long settlementId) {
+	public SettlementResDTO findSettlementById(Long settlementId) {
 
-        validateMemberParticipation(settlementId, memberDetailService.getLoggedInMember().getIdentity());
+		validateMemberParticipation(settlementId, memberDetailService.getLoggedInMember().getIdentity());
 
-        List<Settlement> settlements =
-                settlementSearchRepository.findSettlementDetailsById(settlementId);
+		List<Settlement> settlements =
+			settlementSearchRepository.findSettlementDetailsById(settlementId);
 
-        validateSettlementNotEmpty(settlements);
+		validateSettlementNotEmpty(settlements);
 
-        final List<MemberSettlement> memberSettlement =
-                memberSettlementRepository.findAllBySettlementId(settlementId);
+		final List<MemberSettlement> memberSettlement =
+			memberSettlementRepository.findAllBySettlementId(settlementId);
 
-        final List<MemberResDTO> participants = toMemberResDTOFromMemberSettlement(memberSettlement);
+		final List<MemberResDTO> participants = toMemberResDTOFromMemberSettlement(memberSettlement);
 
-        final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
+		final List<ExpenseResDTO> expenses = expenseService.findAllExpenses();
 
-        return new SettlementResDTO(
-                settlements.get(0).getId(),
-                settlements.get(0).getName(), 
-                participants,
-                expenses
-        );
-    }
+		return new SettlementResDTO(
+			settlements.get(0).getId(),
+			settlements.get(0).getName(),
+			participants,
+			expenses
+		);
+	}
 
-    @Transactional
-    public void deleteSettlementById(Long settlementId) {
+	@Transactional
+	public void deleteSettlementById(Long settlementId) {
 
-        validateMemberParticipation(settlementId, memberDetailService.getLoggedInMember().getIdentity());
+		validateMemberParticipation(settlementId, memberDetailService.getLoggedInMember().getIdentity());
 
-        List<MemberSettlement> memberSettlements =
-                memberSettlementRepository.findAllBySettlementId(settlementId);
+		List<MemberSettlement> memberSettlements =
+			memberSettlementRepository.findAllBySettlementId(settlementId);
 
-        settlementRepository.deleteById(settlementId);
+		settlementRepository.deleteById(settlementId);
 
-        memberSettlementRepository.deleteAll(memberSettlements);
-    }
+		memberSettlementRepository.deleteAll(memberSettlements);
+	}
 
-    private List<MemberResDTO> toMemberResDTOFromMemberSettlement(List<MemberSettlement> memberSettlements) {
+	private List<MemberResDTO> toMemberResDTOFromMemberSettlement(List<MemberSettlement> memberSettlements) {
 
-        return memberSettlements.stream()
-                .map(memberSettlement -> new MemberResDTO(
-                        memberSettlement.getMember().getId(),
-                        memberSettlement.getMember().getIdentity(),
-                        memberSettlement.getMember().getName()))
-                .collect(Collectors.toList());
-    }
+		return memberSettlements.stream()
+			.map(memberSettlement -> new MemberResDTO(
+				memberSettlement.getMember().getId(),
+				memberSettlement.getMember().getIdentity(),
+				memberSettlement.getMember().getName()))
+			.collect(Collectors.toList());
+	}
 
-    private void validateMemberParticipation(Long settlementId, String memberIdentity) {
+	private void validateMemberParticipation(Long settlementId, String memberIdentity) {
 
-        if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberIdentity)) {
-            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
-        }
-    }
+		if (!memberSettlementRepository.existsBySettlementIdAndMemberIdentity(settlementId, memberIdentity)) {
+			throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
+		}
+	}
 
-    private void validateSettlementNotEmpty(List<Settlement> settlements) {
+	private void validateSettlementNotEmpty(List<Settlement> settlements) {
 
-        if (settlements.isEmpty()) {
-            throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
-        }
-    }
+		if (settlements.isEmpty()) {
+			throw new NotFoundException(ResponseStatus.FAIL_SETTLEMENT_NOT_FOUND);
+		}
+	}
 }
