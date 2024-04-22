@@ -36,7 +36,7 @@ public class SecurityConfig {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
-	private final OAuth2UserService oAuth2UserService;
+	private final OAuth2MemberService oAuth2MemberService;
 
 	@Bean
 	protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -66,7 +66,7 @@ public class SecurityConfig {
 			.loginPage("/api/v1/auth/login")
 			.successHandler(authenticationSuccessHandler())
 			.userInfoEndpoint()
-			.userService(oAuth2UserService));
+			.userService(oAuth2MemberService));
 
 		// JWT 인증을 위해 직접 커스텀한 필터를 UsernamePasswordAuthenticationFilter 전에 실행한다.
 		httpSecurity.addFilterBefore(
