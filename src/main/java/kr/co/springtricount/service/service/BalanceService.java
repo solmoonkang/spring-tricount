@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.springtricount.infra.exception.NotFoundException;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.exception.NotFoundException;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 import kr.co.springtricount.service.dto.response.BalanceResDTO;
 import kr.co.springtricount.service.dto.response.ExpenseResDTO;
 import kr.co.springtricount.service.dto.response.MemberResDTO;

@@ -1,17 +1,17 @@
-package kr.co.springtricount.infra.handler;
+package kr.co.springtricount.infra.error.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import kr.co.springtricount.infra.exception.BusinessLogicException;
-import kr.co.springtricount.infra.exception.DuplicatedException;
-import kr.co.springtricount.infra.exception.InvalidRequestException;
-import kr.co.springtricount.infra.exception.NotFoundException;
-import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
-import kr.co.springtricount.infra.response.ResponseFormat;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.exception.BusinessLogicException;
+import kr.co.springtricount.infra.error.exception.DuplicatedException;
+import kr.co.springtricount.infra.error.exception.InvalidRequestException;
+import kr.co.springtricount.infra.error.exception.NotFoundException;
+import kr.co.springtricount.infra.error.exception.UnauthorizedAccessException;
+import kr.co.springtricount.infra.error.response.ResponseFormat;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

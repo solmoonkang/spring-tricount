@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import kr.co.springtricount.infra.response.ResponseFormat;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.response.ResponseFormat;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 import kr.co.springtricount.service.dto.response.BalanceResDTO;
 import kr.co.springtricount.service.dto.response.SettlementResDTO;
 import kr.co.springtricount.service.service.BalanceService;

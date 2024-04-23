@@ -1,8 +1,7 @@
-package kr.co.springtricount.infra.security;
+package kr.co.springtricount.infra.config;
 
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -28,8 +26,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kr.co.springtricount.infra.response.ResponseFormat;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.response.ResponseFormat;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
+import kr.co.springtricount.infra.security.JwtAuthenticationFilter;
+import kr.co.springtricount.infra.security.JwtTokenProvider;
+import kr.co.springtricount.infra.security.MemberDetailService;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -112,36 +113,36 @@ public class SecurityConfig {
 		};
 	}
 
-	@Bean
-	public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2MemberService(
-		UserAccountService userAccountService,
-		PasswordEncoder passwordEncoder) {
-
-		final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
-
-		return userRequest -> {
-			OAuth2User oAuth2User = delegate.loadUser(userRequest);
-
-			KakaoOAuth2ResDTO kakaoOAuth2ResDTO = KakaoOAuth2ResDTO.from(oAuth2User.getAttributes());
-
-			String registrationId = userRequest.getClientRegistration().getRegistrationId();
-			String providerId = String.valueOf(kakaoOAuth2ResDTO.id());
-			String username = registrationId + "_" + providerId;
-			String dummyPassword = passwordEncoder.encode("{bcrypt}" + UUID.randomUUID());
-
-			return userAccountService.searchUser(username)
-				.map(PrincipalDetails::from)
-				.orElseGet(() -> PrincipalDetails.from(
-					userAccountService.saveUser(
-						username,
-						dummyPassword,
-						kakaoOAuth2ResDTO.email(),
-						kakaoOAuth2ResDTO.nickname(),
-						null
-					)
-				));
-		};
-	}
+	// @Bean
+	// public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2MemberService(
+	// 	UserAccountService userAccountService,
+	// 	PasswordEncoder passwordEncoder) {
+	//
+	// 	final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+	//
+	// 	return userRequest -> {
+	// 		OAuth2User oAuth2User = delegate.loadUser(userRequest);
+	//
+	// 		KakaoOAuth2ResDTO kakaoOAuth2ResDTO = KakaoOAuth2ResDTO.from(oAuth2User.getAttributes());
+	//
+	// 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
+	// 		String providerId = String.valueOf(kakaoOAuth2ResDTO.id());
+	// 		String username = registrationId + "_" + providerId;
+	// 		String dummyPassword = passwordEncoder.encode("{bcrypt}" + UUID.randomUUID());
+	//
+	// 		return userAccountService.searchUser(username)
+	// 			.map(PrincipalDetails::from)
+	// 			.orElseGet(() -> PrincipalDetails.from(
+	// 				userAccountService.saveUser(
+	// 					username,
+	// 					dummyPassword,
+	// 					kakaoOAuth2ResDTO.email(),
+	// 					kakaoOAuth2ResDTO.nickname(),
+	// 					null
+	// 				)
+	// 			));
+	// 	};
+	// }
 
 	private AuthenticationEntryPoint authenticationEntryPoint() {
 

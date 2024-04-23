@@ -11,9 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.springtricount.infra.exception.NotFoundException;
-import kr.co.springtricount.infra.exception.UnauthorizedAccessException;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.exception.NotFoundException;
+import kr.co.springtricount.infra.error.exception.UnauthorizedAccessException;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 import kr.co.springtricount.persistence.entity.member.Member;
 import kr.co.springtricount.persistence.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

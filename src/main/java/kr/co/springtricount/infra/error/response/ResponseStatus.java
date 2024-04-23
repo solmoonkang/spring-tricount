@@ -1,4 +1,4 @@
-package kr.co.springtricount.infra.response;
+package kr.co.springtricount.infra.error.response;
 
 import org.springframework.http.HttpStatus;
 

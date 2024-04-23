@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import kr.co.springtricount.infra.response.ResponseFormat;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.response.ResponseFormat;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 import kr.co.springtricount.infra.security.JwtToken;
 import kr.co.springtricount.infra.security.JwtTokenProvider;
 import kr.co.springtricount.service.dto.request.LoginReqDTO;

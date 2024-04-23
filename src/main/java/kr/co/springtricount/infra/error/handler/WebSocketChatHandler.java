@@ -1,4 +1,4 @@
-package kr.co.springtricount.infra.handler;
+package kr.co.springtricount.infra.error.handler;
 
 import java.io.IOException;
 import java.util.HashMap;

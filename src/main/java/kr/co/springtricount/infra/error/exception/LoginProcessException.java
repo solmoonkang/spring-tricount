@@ -1,6 +1,6 @@
-package kr.co.springtricount.infra.exception;
+package kr.co.springtricount.infra.error.exception;
 
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 
 public class LoginProcessException extends BusinessLogicException {
 

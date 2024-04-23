@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import kr.co.springtricount.infra.response.ResponseFormat;
-import kr.co.springtricount.infra.response.ResponseStatus;
+import kr.co.springtricount.infra.error.response.ResponseFormat;
+import kr.co.springtricount.infra.error.response.ResponseStatus;
 import kr.co.springtricount.service.dto.request.ChatMessageReqDTO;
 import kr.co.springtricount.service.dto.response.ChatMessageResDTO;
 import kr.co.springtricount.service.service.ChatMessageService;
